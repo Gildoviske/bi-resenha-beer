@@ -1,0 +1,530 @@
+<meta charset="utf-8">
+<title>Resenha Beer — Painel Executivo</title>
+<style>
+:root{
+  --ink-950:#1B140F; --ink-900:#241B14; --ink-800:#2E2119; --ink-050:#FBF6EE;
+  --surface:#FFFFFF; --surface-alt:#F3ECDF; --line:rgba(36,27,20,0.12);
+  --amber-700:#A8631C; --amber-600:#C97A2B; --amber-300:#F0B563; --amber-100:#FBE3C1;
+  --teal-600:#2B7A6F; --teal-300:#7FBDB4;
+  --good:#3E9A5D; --good-bg:rgba(62,154,93,0.13);
+  --warning:#C98F1F; --warning-bg:rgba(201,143,31,0.15);
+  --critical:#C4463B; --critical-bg:rgba(196,70,59,0.13);
+  --neutral-info:#8A7B6C; --neutral-info-bg:rgba(138,123,108,0.14);
+  --bg: var(--ink-050); --card: var(--surface); --card-alt: var(--surface-alt);
+  --text-primary: var(--ink-900); --text-secondary: rgba(36,27,20,0.72); --text-muted: rgba(36,27,20,0.52);
+  --accent: var(--amber-600); --accent-strong: var(--amber-700); --accent-soft: var(--amber-100);
+  --series-b: var(--teal-600); --track: rgba(36,27,20,0.08);
+  --shadow: 0 1px 2px rgba(27,20,15,0.06), 0 8px 24px -12px rgba(27,20,15,0.18);
+  --font-display: Georgia, 'Iowan Old Style', 'Palatino Linotype', 'Times New Roman', serif;
+  --font-body: -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg: var(--ink-950); --card: var(--ink-900); --card-alt: var(--ink-800);
+    --text-primary: #F3E9DA; --text-secondary: rgba(243,233,218,0.72); --text-muted: rgba(243,233,218,0.5);
+    --line: rgba(243,233,218,0.12); --accent: var(--amber-300); --accent-strong: var(--amber-300);
+    --accent-soft: rgba(240,181,99,0.16); --series-b: var(--teal-300); --track: rgba(243,233,218,0.1);
+    --good-bg:rgba(62,154,93,0.18); --warning-bg:rgba(201,143,31,0.2); --critical-bg:rgba(196,70,59,0.2);
+    --neutral-info-bg:rgba(138,123,108,0.2); --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 12px 32px -14px rgba(0,0,0,0.55);
+  }
+}
+:root[data-theme="dark"]{
+  --bg: var(--ink-950); --card: var(--ink-900); --card-alt: var(--ink-800);
+  --text-primary: #F3E9DA; --text-secondary: rgba(243,233,218,0.72); --text-muted: rgba(243,233,218,0.5);
+  --line: rgba(243,233,218,0.12); --accent: var(--amber-300); --accent-strong: var(--amber-300);
+  --accent-soft: rgba(240,181,99,0.16); --series-b: var(--teal-300); --track: rgba(243,233,218,0.1);
+  --good-bg:rgba(62,154,93,0.18); --warning-bg:rgba(201,143,31,0.2); --critical-bg:rgba(196,70,59,0.2);
+  --neutral-info-bg:rgba(138,123,108,0.2); --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 12px 32px -14px rgba(0,0,0,0.55);
+}
+:root[data-theme="light"]{
+  --bg: var(--ink-050); --card: var(--surface); --card-alt: var(--surface-alt);
+  --text-primary: var(--ink-900); --text-secondary: rgba(36,27,20,0.72); --text-muted: rgba(36,27,20,0.52);
+  --line: rgba(36,27,20,0.12); --accent: var(--amber-600); --accent-strong: var(--amber-700);
+  --accent-soft: var(--amber-100); --series-b: var(--teal-600); --track: rgba(36,27,20,0.08);
+  --shadow: 0 1px 2px rgba(27,20,15,0.06), 0 8px 24px -12px rgba(27,20,15,0.18);
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{background:var(--bg); color:var(--text-primary); font-family:var(--font-body); line-height:1.5; -webkit-font-smoothing:antialiased;}
+@media (prefers-reduced-motion: reduce){*{animation-duration:0.001ms !important; transition-duration:0.001ms !important;}}
+.wrap{max-width:1180px; margin:0 auto; padding:0 24px 80px;}
+header.hero{padding:56px 24px 40px; border-bottom:1px solid var(--line); background: radial-gradient(1200px 260px at 15% -10%, var(--accent-soft), transparent 60%);}
+header.hero .wrap{padding:0; display:flex; flex-direction:column; gap:14px; max-width:1180px; margin:0 auto; padding-left:24px; padding-right:24px;}
+.eyebrow{text-transform:uppercase; letter-spacing:0.12em; font-size:0.72rem; color:var(--accent-strong); font-weight:700;}
+h1.brand{font-family:var(--font-display); font-size:clamp(2.1rem, 4vw, 3rem); margin:0; font-weight:700; text-wrap:balance; letter-spacing:-0.01em;}
+.hero-sub{color:var(--text-secondary); font-size:1.02rem; max-width:640px;}
+.hero-meta{display:flex; gap:18px; flex-wrap:wrap; margin-top:8px; font-size:0.85rem; color:var(--text-muted);}
+.hero-meta strong{color:var(--text-primary);}
+nav.section-nav{position:sticky; top:0; z-index:20; background:color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(8px); border-bottom:1px solid var(--line);}
+nav.section-nav .nav-inner{max-width:1180px; margin:0 auto; padding:0 24px; display:flex; gap:4px; overflow-x:auto; scrollbar-width:none;}
+nav.section-nav .nav-inner::-webkit-scrollbar{display:none;}
+nav.section-nav a{white-space:nowrap; padding:14px 12px; font-size:0.82rem; font-weight:600; color:var(--text-muted); text-decoration:none; border-bottom:2px solid transparent;}
+nav.section-nav a:hover{color:var(--text-primary);}
+nav.section-nav a.active{color:var(--accent-strong); border-bottom-color:var(--accent-strong);}
+section.block{padding:52px 0 8px; border-bottom:1px solid var(--line); scroll-margin-top:64px;}
+section.block:last-of-type{border-bottom:none;}
+.block-head{display:flex; align-items:baseline; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:22px;}
+.block-head h2{font-family:var(--font-display); font-size:1.6rem; margin:0; font-weight:700; text-wrap:balance;}
+.block-num{font-size:0.78rem; color:var(--text-muted); font-weight:600; letter-spacing:0.06em;}
+.stat-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(210px,1fr)); gap:14px; margin-bottom:24px;}
+.stat{background:var(--card); border:1px solid var(--line); border-radius:10px; padding:18px 18px 16px; box-shadow:var(--shadow);}
+.stat .label{font-size:0.76rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; font-weight:700;}
+.stat .value{font-family:var(--font-display); font-size:1.7rem; font-weight:700; margin-top:6px; font-variant-numeric:tabular-nums;}
+.stat .delta{margin-top:6px; font-size:0.82rem; font-weight:600;}
+.delta.up{color:var(--good);} .delta.down{color:var(--critical);} .delta.flat{color:var(--text-muted);}
+.insight{background:var(--card-alt); border:1px solid var(--line); border-left:4px solid var(--accent-strong); border-radius:8px; padding:16px 20px; margin:18px 0 30px;}
+.insight h3{margin:0 0 8px; font-size:0.78rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--accent-strong); font-weight:800;}
+.insight ul{margin:0; padding-left:18px; display:flex; flex-direction:column; gap:6px;}
+.insight li{font-size:0.92rem; color:var(--text-secondary);}
+.insight li b, .insight li strong{color:var(--text-primary);}
+.panel{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:22px; box-shadow:var(--shadow); margin-bottom:20px;}
+.panel h3.panel-title{margin:0 0 4px; font-size:1.02rem; font-weight:700;}
+.panel .panel-sub{font-size:0.82rem; color:var(--text-muted); margin-bottom:18px;}
+.two-col{display:grid; grid-template-columns:1.3fr 1fr; gap:20px;}
+@media (max-width:860px){.two-col{grid-template-columns:1fr;}}
+.chart-scroll{overflow-x:auto;}
+.month-chart{display:flex; align-items:flex-end; gap:10px; height:210px; min-width:640px; padding-top:8px;}
+.month-col{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%;}
+.bar-pair{display:flex; align-items:flex-end; gap:3px; width:100%; height:100%; justify-content:center;}
+.bar-pair .bar{width:13px; border-radius:3px 3px 0 0; position:relative; cursor:default;}
+.bar.b25{background:var(--accent);} .bar.b26{background:var(--series-b);}
+.bar[data-tip]:hover::after, .hbar[data-tip]:hover::after, .col-bar[data-tip]:hover::after{
+  content:attr(data-tip); position:absolute; bottom:calc(100% + 6px); left:50%; transform:translateX(-50%);
+  background:var(--ink-900); color:#F3E9DA; font-size:0.72rem; font-weight:600; padding:4px 8px; border-radius:6px;
+  white-space:nowrap; z-index:5; box-shadow:var(--shadow); font-variant-numeric:tabular-nums;
+}
+.month-label{margin-top:8px; font-size:0.68rem; color:var(--text-muted); font-weight:600;}
+.legend{display:flex; gap:18px; margin-top:14px; font-size:0.8rem; color:var(--text-secondary);}
+.legend span{display:inline-flex; align-items:center; gap:6px;}
+.legend i{width:10px; height:10px; border-radius:3px; display:inline-block;}
+.hour-chart{display:flex; align-items:flex-end; gap:3px; height:170px; padding-top:8px;}
+.hour-col{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; position:relative;}
+.col-bar{width:100%; max-width:22px; border-radius:3px 3px 0 0; background:var(--track); position:relative;}
+.col-bar.peak{background:var(--accent);}
+.hour-tick{margin-top:6px; font-size:0.62rem; color:var(--text-muted);}
+.hbar-list{display:flex; flex-direction:column; gap:11px;}
+.hbar-row{display:grid; grid-template-columns:150px 1fr 84px; align-items:center; gap:10px;}
+.hbar-row .name{font-size:0.85rem; color:var(--text-secondary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.hbar-track{background:var(--track); border-radius:5px; height:12px; position:relative; overflow:visible;}
+.hbar{position:absolute; left:0; top:0; height:100%; border-radius:5px; background:var(--accent);}
+.hbar.alt{background:var(--series-b);}
+.hbar-row .val{font-size:0.83rem; font-weight:700; text-align:right; font-variant-numeric:tabular-nums;}
+.chip-row{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:6px;}
+.chip{display:inline-flex; align-items:center; gap:7px; padding:7px 12px; border-radius:999px; font-size:0.8rem; font-weight:700; border:1px solid transparent;}
+.chip .dot{width:8px; height:8px; border-radius:50%;}
+.chip.critical{background:var(--critical-bg); color:var(--critical);} .chip.critical .dot{background:var(--critical);}
+.chip.warning{background:var(--warning-bg); color:var(--warning);} .chip.warning .dot{background:var(--warning);}
+.chip.good{background:var(--good-bg); color:var(--good);} .chip.good .dot{background:var(--good);}
+.chip.neutral{background:var(--neutral-info-bg); color:var(--neutral-info);} .chip.neutral .dot{background:var(--neutral-info);}
+.table-scroll{overflow-x:auto;}
+table{width:100%; border-collapse:collapse; font-size:0.87rem;}
+thead th{text-align:left; font-size:0.7rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted); padding:0 10px 10px; border-bottom:1px solid var(--line); white-space:nowrap;}
+tbody td{padding:9px 10px; border-bottom:1px solid var(--line); color:var(--text-secondary); white-space:nowrap;}
+tbody tr:last-child td{border-bottom:none;}
+td.num, th.num{text-align:right; font-variant-numeric:tabular-nums;}
+td.strong{color:var(--text-primary); font-weight:600;}
+.rank{color:var(--text-muted); font-variant-numeric:tabular-nums;}
+.tag{display:inline-block; padding:2px 8px; border-radius:6px; font-size:0.72rem; font-weight:700;}
+.tag.low{background:var(--critical-bg); color:var(--critical);}
+.tag.mid{background:var(--warning-bg); color:var(--warning);}
+.tag.high{background:var(--good-bg); color:var(--good);}
+.grid-2{display:grid; grid-template-columns:1fr 1fr; gap:20px;}
+@media (max-width:860px){.grid-2{grid-template-columns:1fr;}}
+.grid-3{display:grid; grid-template-columns:repeat(3,1fr); gap:14px;}
+@media (max-width:860px){.grid-3{grid-template-columns:1fr;}}
+footer{padding:36px 0 20px; text-align:center; color:var(--text-muted); font-size:0.78rem;}
+footer a{color:var(--text-muted);}
+</style>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="eyebrow">Painel Executivo · Resenha Beer</span>
+    <h1 class="brand">Do balcão para a planilha, da planilha para a decisão.</h1>
+    <p class="hero-sub">Consolidado das planilhas operacionais do bar — faturamento, margem, estoque, compras, clientes e contas a pagar — organizado em seções com os pontos que pedem atenção agora.</p>
+    <div class="hero-meta">
+      <span>Período: <strong>Jan/2025 – Jun/2026 fechado, Jul/2026 em andamento</strong></span>
+      <span>Atualizado em <strong>24/07/2026 às 14:36</strong></span>
+      <span>Fonte: exportações do sistema de gestão do bar (Google Drive)</span>
+    </div>
+  </div>
+</header>
+
+<nav class="section-nav">
+  <div class="nav-inner">
+    <a href="#visao-geral">Visão geral</a>
+    <a href="#faturamento">Faturamento</a>
+    <a href="#operacao">Operação diária</a>
+    <a href="#margem">Margem &amp; preço</a>
+    <a href="#produtos">Produtos &amp; clientes</a>
+    <a href="#estoque">Estoque &amp; compras</a>
+    <a href="#financeiro">Financeiro</a>
+  </div>
+</nav>
+
+<div class="wrap">
+
+  <section class="block" id="visao-geral">
+    <div class="block-head"><h2>Visão geral</h2><span class="block-num">01 / 07</span></div>
+    <div class="stat-grid">
+      <div class="stat">
+        <div class="label">Faturamento 2025</div>
+        <div class="value">R$ 225.948,55</div>
+        <div class="delta flat">15.331 vendas no ano</div>
+      </div>
+      <div class="stat">
+        <div class="label">Faturamento acumulado 2026</div>
+        <div class="value">R$ 116.893,38</div>
+        <div class="delta up">▲ 3,3% vs. mesmo período de 2025</div>
+      </div>
+      <div class="stat">
+        <div class="label">Jul/2026 (parcial, snapshot mais recente)</div>
+        <div class="value">R$ 22.725,15</div>
+        <div class="delta flat">R$ 17.332,25 líquido após despesas</div>
+      </div>
+      <div class="stat">
+        <div class="label">Lucro bruto 2025</div>
+        <div class="value">R$ 81.518,94</div>
+        <div class="delta flat">36,1% sobre o faturamento</div>
+      </div>
+    </div>
+    <div class="insight">
+      <h3>Pontos importantes</h3>
+      <ul>
+        <li>O período acumulado de 2026 fechou <b>3,3% acima</b> do mesmo período de 2025 (meses com dado em ambos os anos).</li>
+        <li><b>Maio</b> teve a melhor evolução ano contra ano (<b>+20,5%</b>); <b>Março</b> teve a pior (<b>-10,6%</b>).</li>
+        <li><b>Dezembro/2025</b> foi o melhor mês do ano fechado (R$ 23.380,70); <b>Maio/2025</b> foi o mais fraco (R$ 16.214,98).</li>
+        <li>Jul/2026 está em <b>R$ 22.725,15</b> faturados até o momento da última atualização desta página.</li>
+      </ul>
+    </div>
+  </section>
+
+
+  <section class="block" id="faturamento">
+    <div class="block-head"><h2>Faturamento &amp; lucro mês a mês</h2><span class="block-num">02 / 07</span></div>
+    <div class="panel">
+      <h3 class="panel-title">2025 vs. 2026, mês a mês</h3>
+      <div class="panel-sub">Faturamento em R$ · passe o mouse sobre uma barra para ver o valor exato</div>
+      <div class="chart-scroll"><div class="month-chart"><div class="month-col"><div class="bar-pair"><div class="bar b25" style="height:76.0%" data-tip="2025: R$ 19.023,35"></div><div class="bar b26" style="height:73.5%" data-tip="2026: R$ 18.381,86"></div></div><div class="month-label">Jan</div></div>
+<div class="month-col"><div class="bar-pair"><div class="bar b25" style="height:81.4%" data-tip="2025: R$ 20.362,74"></div><div class="bar b26" style="height:81.8%" data-tip="2026: R$ 20.452,38"></div></div><div class="month-label">Fev</div></div>
+<div class="month-col"><div class="bar-pair"><div class="bar b25" style="height:86.9%" data-tip="2025: R$ 21.733,00"></div><div class="bar b26" style="height:77.7%" data-tip="2026: R$ 19.434,45"></div></div><div class="month-label">Mar</div></div>
+<div class="month-col"><div class="bar-pair"><div class="bar b25" style="height:77.9%" data-tip="2025: R$ 19.490,88"></div><div class="bar b26" style="height:85.7%" data-tip="2026: R$ 21.445,25"></div></div><div class="month-label">Abr</div></div>
+<div class="month-col"><div class="bar-pair"><div class="bar b25" style="height:64.8%" data-tip="2025: R$ 16.214,98"></div><div class="bar b26" style="height:78.1%" data-tip="2026: R$ 19.541,14"></div></div><div class="month-label">Mai</div></div>
+<div class="month-col"><div class="bar-pair"><div class="bar b25" style="height:65.3%" data-tip="2025: R$ 16.332,75"></div><div class="bar b26" style="height:70.5%" data-tip="2026: R$ 17.638,30"></div></div><div class="month-label">Jun</div></div>
+<div class="month-col"><div class="bar-pair"><div class="bar b25" style="height:67.6%" data-tip="2025: R$ 16.915,54"></div></div><div class="month-label">Jul</div></div>
+<div class="month-col"><div class="bar-pair"><div class="bar b25" style="height:76.3%" data-tip="2025: R$ 19.094,20"></div></div><div class="month-label">Ago</div></div>
+<div class="month-col"><div class="bar-pair"><div class="bar b25" style="height:73.6%" data-tip="2025: R$ 18.423,10"></div></div><div class="month-label">Set</div></div>
+<div class="month-col"><div class="bar-pair"><div class="bar b25" style="height:71.1%" data-tip="2025: R$ 17.775,91"></div></div><div class="month-label">Out</div></div>
+<div class="month-col"><div class="bar-pair"><div class="bar b25" style="height:68.8%" data-tip="2025: R$ 17.201,40"></div></div><div class="month-label">Nov</div></div>
+<div class="month-col"><div class="bar-pair"><div class="bar b25" style="height:93.5%" data-tip="2025: R$ 23.380,70"></div></div><div class="month-label">Dez</div></div></div></div>
+      <div class="legend"><span><i style="background:var(--accent)"></i>2025</span><span><i style="background:var(--series-b)"></i>2026</span></div>
+    </div>
+    <div class="insight">
+      <h3>Pontos importantes</h3>
+      <ul>
+        <li><b>Janeiro, Março</b> vieram abaixo do ano anterior — vale cruzar com o calendário de eventos/feriados desses meses.</li>
+        <li>A margem bruta sobre faturamento em 2025 ficou em <b>36,1%</b> na média do ano, sinal de que o custo de mercadoria vendida está sob controle mesmo com a receita oscilando mês a mês.</li>
+        <li>2026 tem dados fechados até <b>Jun</b> nesta planilha — a seção "Operação diária" cobre o snapshot mais recente disponível.</li>
+      </ul>
+    </div>
+  </section>
+
+
+  <section class="block" id="operacao">
+    <div class="block-head"><h2>Operação diária — snapshot mais recente</h2><span class="block-num">03 / 07</span></div>
+    <div class="two-col">
+      <div class="panel">
+        <h3 class="panel-title">Faturamento por horário</h3>
+        <div class="panel-sub">1.558 vendas · R$ 22.725,15</div>
+        <div class="hour-chart"><div class="hour-col"><div class="col-bar" style="height:2.6%" data-tip="R$ 84,25"></div><div class="hour-tick">0h</div></div>
+<div class="hour-col"><div class="col-bar" style="height:3.1%" data-tip="R$ 100,00"></div><div class="hour-tick"></div></div>
+<div class="hour-col"><div class="col-bar" style="height:0.0%" data-tip="R$ 0,00"></div><div class="hour-tick"></div></div>
+<div class="hour-col"><div class="col-bar" style="height:0.0%" data-tip="R$ 0,00"></div><div class="hour-tick"></div></div>
+<div class="hour-col"><div class="col-bar" style="height:0.0%" data-tip="R$ 0,00"></div><div class="hour-tick"></div></div>
+<div class="hour-col"><div class="col-bar" style="height:0.0%" data-tip="R$ 0,00"></div><div class="hour-tick"></div></div>
+<div class="hour-col"><div class="col-bar" style="height:0.0%" data-tip="R$ 0,00"></div><div class="hour-tick">6h</div></div>
+<div class="hour-col"><div class="col-bar" style="height:0.0%" data-tip="R$ 0,00"></div><div class="hour-tick"></div></div>
+<div class="hour-col"><div class="col-bar" style="height:0.4%" data-tip="R$ 14,00"></div><div class="hour-tick"></div></div>
+<div class="hour-col"><div class="col-bar" style="height:1.6%" data-tip="R$ 51,00"></div><div class="hour-tick"></div></div>
+<div class="hour-col"><div class="col-bar" style="height:7.4%" data-tip="R$ 240,50"></div><div class="hour-tick"></div></div>
+<div class="hour-col"><div class="col-bar" style="height:28.1%" data-tip="R$ 910,05"></div><div class="hour-tick"></div></div>
+<div class="hour-col"><div class="col-bar" style="height:27.4%" data-tip="R$ 887,55"></div><div class="hour-tick">12h</div></div>
+<div class="hour-col"><div class="col-bar" style="height:31.8%" data-tip="R$ 1.028,55"></div><div class="hour-tick"></div></div>
+<div class="hour-col"><div class="col-bar" style="height:27.6%" data-tip="R$ 892,50"></div><div class="hour-tick"></div></div>
+<div class="hour-col"><div class="col-bar" style="height:31.6%" data-tip="R$ 1.020,65"></div><div class="hour-tick"></div></div>
+<div class="hour-col"><div class="col-bar peak" style="height:61.7%" data-tip="R$ 1.994,65"></div><div class="hour-tick"></div></div>
+<div class="hour-col"><div class="col-bar peak" style="height:84.7%" data-tip="R$ 2.738,65"></div><div class="hour-tick"></div></div>
+<div class="hour-col"><div class="col-bar peak" style="height:100.0%" data-tip="R$ 3.234,85 — pico do dia"></div><div class="hour-tick">18h</div></div>
+<div class="hour-col"><div class="col-bar peak" style="height:87.4%" data-tip="R$ 2.828,70"></div><div class="hour-tick"></div></div>
+<div class="hour-col"><div class="col-bar peak" style="height:77.6%" data-tip="R$ 2.510,35"></div><div class="hour-tick"></div></div>
+<div class="hour-col"><div class="col-bar peak" style="height:65.4%" data-tip="R$ 2.115,75"></div><div class="hour-tick"></div></div>
+<div class="hour-col"><div class="col-bar" style="height:45.0%" data-tip="R$ 1.456,65"></div><div class="hour-tick"></div></div>
+<div class="hour-col"><div class="col-bar" style="height:19.1%" data-tip="R$ 616,50"></div><div class="hour-tick">23h</div></div></div>
+      </div>
+      <div class="panel">
+        <h3 class="panel-title">Meios de pagamento</h3>
+        <div class="panel-sub">Participação sobre R$ 22.850,95 vendidos</div>
+        <div class="hbar-list"><div class="hbar-row"><span class="name">Cartão de Débito</span><div class="hbar-track"><div class="hbar" style="width:100.0%"></div></div><span class="val">R$ 8.136,39</span></div>
+<div class="hbar-row"><span class="name">Pix</span><div class="hbar-track"><div class="hbar" style="width:87.3%"></div></div><span class="val">R$ 7.105,25</span></div>
+<div class="hbar-row"><span class="name">Dinheiro</span><div class="hbar-track"><div class="hbar" style="width:64.4%"></div></div><span class="val">R$ 5.243,36</span></div>
+<div class="hbar-row"><span class="name">Cartão de Crédito</span><div class="hbar-track"><div class="hbar" style="width:26.1%"></div></div><span class="val">R$ 2.126,75</span></div>
+<div class="hbar-row"><span class="name">Outros Meios</span><div class="hbar-track"><div class="hbar" style="width:2.9%"></div></div><span class="val">R$ 239,20</span></div></div>
+      </div>
+    </div>
+    <div class="insight">
+      <h3>Pontos importantes</h3>
+      <ul>
+        <li><b>67,9% do faturamento</b> acontece entre <b>16h e 21h</b> — é a janela que justifica reforço de equipe e estoque de giro rápido.</li>
+        <li><b>Cartão de débito + Pix somam 66,7%</b> das vendas — negociar taxa com a adquirente de cartão tem impacto direto e mensurável no lucro.</li>
+        <li>O horário de pico do dia é <b>18h</b>, com R$ 3.234,85 vendidos nessa hora.</li>
+      </ul>
+    </div>
+  </section>
+
+
+  <section class="block" id="margem">
+    <div class="block-head"><h2>Margem &amp; precificação</h2><span class="block-num">04 / 07</span></div>
+    <div class="stat-grid">
+      <div class="stat">
+        <div class="label">Margem operacional média</div>
+        <div class="value">40,9%</div>
+        <div class="delta flat">sobre 215 produtos precificados</div>
+      </div>
+      <div class="stat">
+        <div class="label">Classificação de margem</div>
+        <div class="chip-row" style="margin-top:8px">
+          <span class="chip good"><span class="dot"></span>Alta · 206</span>
+          <span class="chip warning"><span class="dot"></span>Média · 7</span>
+          <span class="chip critical"><span class="dot"></span>Baixa · 2</span>
+        </div>
+      </div>
+      <div class="stat">
+        <div class="label">Produtos sinalizados p/ ajuste de preço</div>
+        <div class="value">2</div>
+        <div class="delta down">margem operacional abaixo do ideal</div>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="panel">
+        <h3 class="panel-title">Maior margem em R$ por produto</h3>
+        <div class="panel-sub">O que mais contribui em reais por unidade vendida</div>
+        <div class="hbar-list"><div class="hbar-row"><span class="name">WHISKEY WHITE HORSE 1L</span><div class="hbar-track"><div class="hbar" style="width:100.0%"></div></div><span class="val">R$ 31,00</span></div>
+<div class="hbar-row"><span class="name">GIN ORLOF 1L</span><div class="hbar-track"><div class="hbar" style="width:67.9%"></div></div><span class="val">R$ 21,05</span></div>
+<div class="hbar-row"><span class="name">VINHO TINTO SUAVE COLINA 750ML</span><div class="hbar-track"><div class="hbar" style="width:64.5%"></div></div><span class="val">R$ 20,00</span></div>
+<div class="hbar-row"><span class="name">VODKA SKY 750ML</span><div class="hbar-track"><div class="hbar" style="width:50.2%"></div></div><span class="val">R$ 15,55</span></div>
+<div class="hbar-row"><span class="name">BARALHO</span><div class="hbar-track"><div class="hbar" style="width:48.4%"></div></div><span class="val">R$ 15,00</span></div></div>
+      </div>
+      <div class="panel">
+        <h3 class="panel-title">Sinalizados para ajuste de preço</h3>
+        <div class="panel-sub">Classificação "Baixa" na planilha de margem operacional</div>
+        <div class="table-scroll"><table>
+          <thead><tr><th>Produto</th><th class="num">Custo</th><th class="num">Venda</th><th class="num">Margem</th></tr></thead>
+          <tbody><tr><td>CIGARRO CHESTERFIELD ORIGINAL LABEL</td><td class="num">R$ 9,00</td><td class="num">R$ 10,00</td><td class="num"><span class="tag low">10,0%</span></td></tr>
+<tr><td>CIGARRO DUNHILL FREE VERMELHO</td><td class="num">R$ 10,99</td><td class="num">R$ 12,75</td><td class="num"><span class="tag low">13,8%</span></td></tr></tbody>
+        </table></div>
+      </div>
+    </div>
+    <div class="panel">
+      <h3 class="panel-title">Cardápio de copões — custo e margem por dose</h3>
+      <div class="panel-sub">Extraído das fichas técnicas de custo de cada copão do cardápio</div>
+      <div class="table-scroll"><table>
+        <thead><tr><th>Copão</th><th class="num">Custo</th><th class="num">Preço</th><th class="num">Lucro/copo</th><th class="num">Margem</th></tr></thead>
+        <tbody><tr><td>Copão de Gin s/Frutas com Energético One</td><td class="num">R$ 5,59</td><td class="num">R$ 15,00</td><td class="num">R$ 9,41</td><td class="num"><span class="tag high">62,7%</span></td></tr>
+<tr><td>Copão de Gin s/Frutas com Energético Baly</td><td class="num">R$ 6,32</td><td class="num">R$ 16,00</td><td class="num">R$ 9,68</td><td class="num"><span class="tag high">60,5%</span></td></tr>
+<tr><td>Copão de Old Star com Energético One</td><td class="num">R$ 4,31</td><td class="num">R$ 10,00</td><td class="num">R$ 5,69</td><td class="num"><span class="tag high">56,9%</span></td></tr>
+<tr><td>Copão de Jurupinga (Polpa)</td><td class="num">R$ 10,12</td><td class="num">R$ 22,80</td><td class="num">R$ 12,68</td><td class="num"><span class="tag high">55,6%</span></td></tr>
+<tr><td>Copão de Gin c/Frutas com Energético One</td><td class="num">R$ 8,39</td><td class="num">R$ 17,00</td><td class="num">R$ 8,61</td><td class="num"><span class="tag high">50,6%</span></td></tr>
+<tr><td>Copão de Gin c/Frutas com Energético Baly</td><td class="num">R$ 9,12</td><td class="num">R$ 17,00</td><td class="num">R$ 7,88</td><td class="num"><span class="tag high">46,3%</span></td></tr>
+<tr><td>Copão de Gin s/Frutas com Energético Monster</td><td class="num">R$ 10,89</td><td class="num">R$ 18,00</td><td class="num">R$ 7,11</td><td class="num"><span class="tag mid">39,5%</span></td></tr>
+<tr><td>Copão de Gin c/Frutas com Energético Monster</td><td class="num">R$ 13,69</td><td class="num">R$ 22,00</td><td class="num">R$ 8,31</td><td class="num"><span class="tag mid">37,8%</span></td></tr>
+<tr><td>Copão de Passaport com Energético Baly</td><td class="num">R$ 12,22</td><td class="num">R$ 17,00</td><td class="num">R$ 4,78</td><td class="num"><span class="tag mid">28,1%</span></td></tr>
+<tr><td>Copão de White Horse com Energético Baly</td><td class="num">R$ 15,62</td><td class="num">R$ 21,00</td><td class="num">R$ 5,38</td><td class="num"><span class="tag mid">25,6%</span></td></tr>
+<tr><td>Copão de Passaport com Energético One</td><td class="num">R$ 11,21</td><td class="num">R$ 15,00</td><td class="num">R$ 3,79</td><td class="num"><span class="tag mid">25,2%</span></td></tr>
+<tr><td>Copão de White Horse com Energético One</td><td class="num">R$ 14,61</td><td class="num">R$ 19,00</td><td class="num">R$ 4,39</td><td class="num"><span class="tag mid">23,1%</span></td></tr>
+<tr><td>Copão de Red Label com Energético One</td><td class="num">R$ 18,39</td><td class="num">R$ 22,00</td><td class="num">R$ 3,61</td><td class="num"><span class="tag low">16,4%</span></td></tr>
+<tr><td>Copão de Passaport com Energético Monster</td><td class="num">R$ 18,20</td><td class="num">R$ 21,00</td><td class="num">R$ 2,80</td><td class="num"><span class="tag low">13,3%</span></td></tr>
+<tr><td>Copão de White Horse com Energético Monster</td><td class="num">R$ 21,60</td><td class="num">R$ 24,00</td><td class="num">R$ 2,40</td><td class="num"><span class="tag low">10,0%</span></td></tr>
+<tr><td>Copão de Red Label com Energético Baly</td><td class="num">R$ 21,62</td><td class="num">R$ 24,00</td><td class="num">R$ 2,38</td><td class="num"><span class="tag low">9,9%</span></td></tr>
+<tr><td>Copão de Red Label com Energético Monster</td><td class="num">R$ 24,27</td><td class="num">R$ 26,00</td><td class="num">R$ 1,73</td><td class="num"><span class="tag low">6,7%</span></td></tr></tbody>
+      </table></div>
+    </div>
+    <div class="insight">
+      <h3>Pontos importantes</h3>
+      <ul>
+        <li>A linha <b>Copão de Red Label com Energético Monster</b> é a de menor margem do cardápio, com 6,7% — vale reajustar o preço ou revisar a ficha técnica.</li>
+        <li><b>95,8%</b> do portfólio está em faixa de margem <b>Alta</b> — o problema de rentabilidade, quando existe, tende a estar concentrado em poucos itens específicos.</li>
+        <li>2 produto(s) sinalizados para ajuste de preço; como costumam girar bem, um pequeno reajuste tem efeito imediato no caixa.</li>
+      </ul>
+    </div>
+  </section>
+
+
+  <section class="block" id="produtos">
+    <div class="block-head"><h2>Produtos &amp; clientes</h2><span class="block-num">05 / 07</span></div>
+    <div class="grid-2">
+      <div class="panel">
+        <h3 class="panel-title">Produtos mais vendidos (por quantidade)</h3>
+        <div class="panel-sub">Ranking do relatório de vendas por produto</div>
+        <div class="table-scroll"><table>
+          <thead><tr><th></th><th>Produto</th><th class="num">Qtd.</th><th class="num">Total</th></tr></thead>
+          <tbody><tr><td class="rank">1</td><td>ANTARCTICA BOA 350ML</td><td class="num">612</td><td class="num">R$ 2.448,00</td></tr>
+<tr><td class="rank">2</td><td>BRAHMA 350ML</td><td class="num">257</td><td class="num">R$ 1.028,00</td></tr>
+<tr><td class="rank">3</td><td>IMPÉRIO 350ML</td><td class="num">191</td><td class="num">R$ 744,05</td></tr>
+<tr><td class="rank">4</td><td>CONTI ZERO 350ML</td><td class="num">137</td><td class="num">R$ 479,50</td></tr>
+<tr><td class="rank">5</td><td>FIGURINHAS DA COPA 2026</td><td class="num">121</td><td class="num">R$ 843,00</td></tr>
+<tr><td class="rank">6</td><td>BURGUESA 350ML</td><td class="num">119</td><td class="num">R$ 416,50</td></tr>
+<tr><td class="rank">7</td><td>ANTARCTICA BOA 1L</td><td class="num">115</td><td class="num">R$ 1.379,00</td></tr>
+<tr><td class="rank">8</td><td>DOSES DIVERSAS</td><td class="num">104</td><td class="num">R$ 400,60</td></tr>
+<tr><td class="rank">9</td><td>QUEIJO NOZÃO</td><td class="num">94</td><td class="num">R$ 459,70</td></tr></tbody>
+        </table></div>
+      </div>
+      <div class="panel">
+        <h3 class="panel-title">Top clientes por valor de compras</h3>
+        <div class="panel-sub">50 clientes ativos cadastrados · 58 com histórico de compras</div>
+        <div class="hbar-list"><div class="hbar-row"><span class="name">RAUL LIMA</span><div class="hbar-track"><div class="hbar" style="width:100.0%"></div></div><span class="val">R$ 432,50</span></div>
+<div class="hbar-row"><span class="name">FÁBIO CIRILLO</span><div class="hbar-track"><div class="hbar" style="width:98.5%"></div></div><span class="val">R$ 426,00</span></div>
+<div class="hbar-row"><span class="name">WALDOMIRO</span><div class="hbar-track"><div class="hbar" style="width:97.5%"></div></div><span class="val">R$ 421,70</span></div>
+<div class="hbar-row"><span class="name">VERIDIANA</span><div class="hbar-track"><div class="hbar" style="width:93.4%"></div></div><span class="val">R$ 404,10</span></div>
+<div class="hbar-row"><span class="name">WAGNER BIASOTO</span><div class="hbar-track"><div class="hbar" style="width:89.2%"></div></div><span class="val">R$ 385,80</span></div>
+<div class="hbar-row"><span class="name">GUILHERME CASTELO</span><div class="hbar-track"><div class="hbar" style="width:87.5%"></div></div><span class="val">R$ 378,50</span></div>
+<div class="hbar-row"><span class="name">MARCELO JAGUAR</span><div class="hbar-track"><div class="hbar" style="width:54.0%"></div></div><span class="val">R$ 233,55</span></div></div>
+      </div>
+    </div>
+    <div class="insight">
+      <h3>Pontos importantes</h3>
+      <ul>
+        <li>O produto mais vendido é <b>ANTARCTICA BOA 350ML</b>, com 612 unidades no período do relatório.</li>
+        <li>Os <b>10 clientes do topo do ranking respondem por 51,3%</b> de todo o valor de compras rastreado — um programa simples de fidelidade para esse grupo protege receita concentrada.</li>
+        <li><b>QUEIJO NOZÃO, ANTARCTICA BOA 1L</b> está(ão) ao mesmo tempo entre os mais vendidos e em situação crítica de estoque — priorizar essas compras primeiro.</li>
+      </ul>
+    </div>
+  </section>
+
+
+  <section class="block" id="estoque">
+    <div class="block-head"><h2>Estoque &amp; planejamento de compras</h2><span class="block-num">06 / 07</span></div>
+    <div class="stat-grid">
+      <div class="stat">
+        <div class="label">Valor em estoque (custo)</div>
+        <div class="value">R$ 18.425,68</div>
+        <div class="delta flat">potencial de venda: R$ 28.595,00</div>
+      </div>
+      <div class="stat">
+        <div class="label">Produtos com estoque zerado</div>
+        <div class="value">58 <span style="font-size:1rem;color:var(--text-muted)">de 218</span></div>
+        <div class="delta down">26,6% do catálogo sem disponibilidade</div>
+      </div>
+      <div class="stat">
+        <div class="label">Itens em situação crítica de compra</div>
+        <div class="value">40</div>
+        <div class="delta down">precisam de reposição urgente</div>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="panel">
+        <h3 class="panel-title">Valor de estoque por categoria</h3>
+        <div class="panel-sub">Custo total imobilizado, principais categorias</div>
+        <div class="hbar-list"><div class="hbar-row"><span class="name">CERVEJAS</span><div class="hbar-track"><div class="hbar" style="width:100.0%"></div></div><span class="val">R$ 4.006,94</span></div>
+<div class="hbar-row"><span class="name">TABACARIA &amp; DIVERSOS</span><div class="hbar-track"><div class="hbar" style="width:45.0%"></div></div><span class="val">R$ 1.802,51</span></div>
+<div class="hbar-row"><span class="name">REFRIGERANTES</span><div class="hbar-track"><div class="hbar" style="width:28.0%"></div></div><span class="val">R$ 1.122,90</span></div>
+<div class="hbar-row"><span class="name">MERCEARIA</span><div class="hbar-track"><div class="hbar" style="width:22.0%"></div></div><span class="val">R$ 881,19</span></div>
+<div class="hbar-row"><span class="name">SALGADINHOS</span><div class="hbar-track"><div class="hbar" style="width:12.5%"></div></div><span class="val">R$ 502,30</span></div>
+<div class="hbar-row"><span class="name">ENERGÉTICOS</span><div class="hbar-track"><div class="hbar" style="width:6.5%"></div></div><span class="val">R$ 261,22</span></div></div>
+      </div>
+      <div class="panel">
+        <h3 class="panel-title">Status do planejamento de compras</h3>
+        <div class="panel-sub">211 produtos analisados por giro dos últimos 30 dias</div>
+        <div class="chip-row">
+          <span class="chip critical"><span class="dot"></span>Crítico · 40</span>
+          <span class="chip warning"><span class="dot"></span>Atenção · 23</span>
+          <span class="chip good"><span class="dot"></span>OK · 28</span>
+          <span class="chip neutral"><span class="dot"></span>Excesso · 62</span>
+          <span class="chip neutral"><span class="dot"></span>Sem giro · 58</span>
+        </div>
+        <div class="panel-sub" style="margin-top:16px; margin-bottom:8px;">Exemplos de itens críticos (comprar com urgência)</div>
+        <div class="table-scroll"><table><tbody><tr><td>CABARÉ ICE FRUTAS VERMELHAS 275ML</td></tr>
+<tr><td>MONSTER ULTRA STRAWBERRY DREAMS 473ML</td></tr>
+<tr><td>CONE DE CHOCOLATE SABORES DIVERSOS</td></tr>
+<tr><td>CABARÉ ICE LIMÃO 275ML</td></tr>
+<tr><td>PAÇOCA</td></tr>
+<tr><td>AÇUCAR REFINADO 1KG</td></tr></tbody></table></div>
+      </div>
+    </div>
+    <div class="insight">
+      <h3>Pontos importantes</h3>
+      <ul>
+        <li>Apenas <b>13,3%</b> dos produtos estão em status "OK" de estoque — o grosso está em <b>excesso (29,4%)</b>, <b>sem giro (27,5%)</b> ou <b>crítico (19,0%)</b>.</li>
+        <li><b>QUEIJO NOZÃO, ANTARCTICA BOA 1L</b> combinam alta venda com ruptura de estoque — são a prioridade de compra.</li>
+        <li>Os 58 itens "sem giro" são candidatos naturais a saírem do cardápio/prateleira, liberando espaço e capital.</li>
+      </ul>
+    </div>
+  </section>
+
+
+  <section class="block" id="financeiro">
+    <div class="block-head"><h2>Financeiro — contas a pagar &amp; despesas</h2><span class="block-num">07 / 07</span></div>
+    <div class="chip-row">
+      <span class="chip good"><span class="dot"></span>Pagas · 200</span>
+      <span class="chip critical"><span class="dot"></span>Vencidas · 2 (R$ 696,74)</span>
+      <span class="chip warning"><span class="dot"></span>Vence hoje · 1</span>
+      <span class="chip neutral"><span class="dot"></span>A vencer · 1 (R$ 467,48)</span>
+    </div>
+    <div class="grid-2" style="margin-top:20px;">
+      <div class="panel">
+        <h3 class="panel-title">Maiores categorias de despesa (histórico registrado)</h3>
+        <div class="hbar-list"><div class="hbar-row"><span class="name">BEBIDAS</span><div class="hbar-track"><div class="hbar" style="width:100.0%"></div></div><span class="val">R$ 42.433,94</span></div>
+<div class="hbar-row"><span class="name">TABACARIA</span><div class="hbar-track"><div class="hbar" style="width:36.0%"></div></div><span class="val">R$ 15.283,76</span></div>
+<div class="hbar-row"><span class="name">ENERGIA</span><div class="hbar-track"><div class="hbar" style="width:18.5%"></div></div><span class="val">R$ 7.834,78</span></div>
+<div class="hbar-row"><span class="name">MERCEARIA</span><div class="hbar-track"><div class="hbar" style="width:11.8%"></div></div><span class="val">R$ 5.021,57</span></div>
+<div class="hbar-row"><span class="name">ESTABELECIMENTO</span><div class="hbar-track"><div class="hbar" style="width:6.3%"></div></div><span class="val">R$ 2.652,64</span></div>
+<div class="hbar-row"><span class="name">ALUGUEL</span><div class="hbar-track"><div class="hbar" style="width:4.9%"></div></div><span class="val">R$ 2.081,82</span></div></div>
+      </div>
+      <div class="panel">
+        <h3 class="panel-title">Maiores fornecedores (histórico registrado)</h3>
+        <div class="hbar-list"><div class="hbar-row"><span class="name">SPAL INDÚSTRIA COCA-COLA</span><div class="hbar-track"><div class="hbar alt" style="width:100.0%"></div></div><span class="val">R$ 15.236,59</span></div>
+<div class="hbar-row"><span class="name">AMBEV S.A</span><div class="hbar-track"><div class="hbar alt" style="width:58.5%"></div></div><span class="val">R$ 8.916,05</span></div>
+<div class="hbar-row"><span class="name">CASA DA CONTI LTDA</span><div class="hbar-track"><div class="hbar alt" style="width:52.6%"></div></div><span class="val">R$ 8.017,47</span></div>
+<div class="hbar-row"><span class="name">SOUZA CRUZ LTDA</span><div class="hbar-track"><div class="hbar alt" style="width:40.3%"></div></div><span class="val">R$ 6.133,76</span></div>
+<div class="hbar-row"><span class="name">CPFL ENERGIA</span><div class="hbar-track"><div class="hbar alt" style="width:35.5%"></div></div><span class="val">R$ 5.404,11</span></div>
+<div class="hbar-row"><span class="name">LINCE DISTRIBUIDORA DE BEBIDAS</span><div class="hbar-track"><div class="hbar alt" style="width:34.0%"></div></div><span class="val">R$ 5.177,35</span></div></div>
+      </div>
+    </div>
+    <div class="panel">
+      <h3 class="panel-title">Resultado do snapshot mais recente</h3>
+      <div class="panel-sub">Receitas e despesas do período mais recente disponível</div>
+      <div class="grid-3">
+        <div class="stat" style="box-shadow:none;"><div class="label">Receitas</div><div class="value">R$ 22.850,95</div></div>
+        <div class="stat" style="box-shadow:none;"><div class="label">Despesas (Bebidas 74,6% do total)</div><div class="value">R$ 5.518,70</div></div>
+        <div class="stat" style="box-shadow:none; border-color:var(--accent-strong);"><div class="label">Receitas − despesas</div><div class="value" style="color:var(--accent-strong)">R$ 17.332,25</div></div>
+      </div>
+    </div>
+    <div class="insight">
+      <h3>Pontos importantes</h3>
+      <ul>
+        <li>Apenas <b>2 conta(s) vencida(s)</b> (R$ 696,74) e <b>1 vence(m) hoje</b> — gestão de pagamentos sob controle.</li>
+        <li><b>Bebidas concentra 74,6%</b> das despesas do snapshot mais recente e <b>25,6%</b> de todo o histórico de contas a pagar — é a categoria com maior alavancagem para negociação junto a <b>SPAL INDÚSTRIA COCA-COLA</b>, o maior fornecedor.</li>
+        <li>O resultado líquido do período (<b>R$ 17.332,25</b>) supera o lucro bruto médio mensal de 2025 (R$ 6.793,24).</li>
+      </ul>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  Painel gerado automaticamente a partir das planilhas do Google Drive.<br>
+  CLIENTES - RESENHA BEER.xls (24/07/2026 às 13:50) · CONTAS A PAGAR - RESENHA BEER.xls (24/07/2026 às 13:50) · CUSTOS X VALOR DE VENDA - RESENHA BEER.xlsx (12/07/2026 às 20:51) · ESTOQUE - RESENHA BEER.xls (24/07/2026 às 13:50) · FATURAMENTO 2025 - RESENHA BEER.xlsx (03/01/2026 às 11:45) · FATURAMENTO 2026 - RESENHA BEER.xlsx (12/07/2026 às 20:52) · FATURAMENTO MENSAL - RESENHA BEER.xls (24/07/2026 às 13:50) · HORÁRIO DE PICO - RESENHA BEER.xls (24/07/2026 às 13:50) · MARGEM OPERACIONAL - RESENHA BEER.xlsx (12/07/2026 às 20:47) · MEIOS DE PAGAMENTO - RESENHA BEER.xls (24/07/2026 às 13:50) · PLANEJAMENTO DE COMPRAS - RESENHA BEER.xlsx (12/07/2026 às 20:34) · RANKING DE VENDAS POR CLIENTE - RESENHA BEER.xls (24/07/2026 às 13:50) · RECEITAS E DESPESAS - RESENHA BEER.xls (24/07/2026 às 13:50) · VENDAS POR PRODUTO - RESENHA BEER.xls (24/07/2026 às 13:50)
+</footer>
+
+<script>
+(function(){
+  var links = Array.prototype.slice.call(document.querySelectorAll('.section-nav a'));
+  var sections = links.map(function(a){ return document.querySelector(a.getAttribute('href')); });
+  function onScroll(){
+    var pos = window.scrollY + 90;
+    var current = sections[0];
+    sections.forEach(function(sec){ if(sec && sec.offsetTop <= pos) current = sec; });
+    links.forEach(function(a){ a.classList.toggle('active', current && a.getAttribute('href') === '#' + current.id); });
+  }
+  document.addEventListener('scroll', onScroll, {passive:true});
+  onScroll();
+})();
+</script>
