@@ -8,11 +8,26 @@ pronta para publicar no GitHub Pages.
 import html as html_lib
 from datetime import datetime
 from pathlib import Path
+from urllib.parse import quote
 
 import pandas as pd
 
 BASE = Path(r"J:\Meu Drive")
 OUT = Path(__file__).resolve().parent / "index.html"
+
+# ícone da aba do navegador: caneca de chopp em âmbar sobre fundo escuro,
+# no mesmo tom do painel (bar/copo com espuma e alça)
+FAVICON_SVG = (
+    "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'>"
+    "<rect width='64' height='64' rx='14' fill='#1B140F'/>"
+    "<path d='M40 26 q11 0 11 9 q0 9 -11 9' fill='none' stroke='#C97A2B' stroke-width='5' stroke-linecap='round'/>"
+    "<rect x='16' y='28' width='24' height='22' rx='3' fill='#C97A2B'/>"
+    "<rect x='16' y='20' width='24' height='10' rx='4' fill='#FBE3C1'/>"
+    "<circle cx='23' cy='38' r='2' fill='#F0B563' opacity='0.7'/>"
+    "<circle cx='31' cy='44' r='1.8' fill='#F0B563' opacity='0.7'/>"
+    "</svg>"
+)
+FAVICON_HREF = "data:image/svg+xml," + quote(FAVICON_SVG)
 
 MESES_PT = ["JANEIRO", "FEVEREIRO", "MARÇO", "ABRIL", "MAIO", "JUNHO", "JULHO",
             "AGOSTO", "SETEMBRO", "OUTUBRO", "NOVEMBRO", "DEZEMBRO"]
@@ -822,6 +837,7 @@ FOOTER = f"""
 
 html_out = f"""<meta charset="utf-8">
 <title>Resenha Beer — Painel Executivo</title>
+<link rel="icon" href="{FAVICON_HREF}">
 <style>{CSS}</style>
 
 <header class="hero">
