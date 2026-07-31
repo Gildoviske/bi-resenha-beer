@@ -6,6 +6,7 @@ Lê os arquivos em BASE (J:\\Meu Drive) e grava index.html nesta mesma pasta,
 pronta para publicar no GitHub Pages.
 """
 import html as html_lib
+import re
 from datetime import datetime
 from pathlib import Path
 from urllib.parse import quote
@@ -288,6 +289,34 @@ top7_clientes = list(top10_clientes.head(7).itertuples(index=False))
 dfcli = pd.read_excel(path("CLIENTES - RESENHA BEER.xls"))
 clientes_ativos = int((dfcli["Status"] == "Ativo").sum()) if "Status" in dfcli.columns else len(dfcli)
 
+
+def parse_saldo_cliente(texto):
+    """Extrai valores de 'Débito- R$ X,XX' / 'Crédito R$ X,XX' (podem vir combinados
+    na mesma célula, separados por quebra de linha)."""
+    if not isinstance(texto, str):
+        return 0.0, 0.0
+
+    def to_float(s):
+        return float(s.replace(".", "").replace(",", "."))
+
+    deb = sum(to_float(x) for x in re.findall(r"D[ée]bito-?\s*R\$\s*([\d.,]+)", texto))
+    cred = sum(to_float(x) for x in re.findall(r"Cr[ée]dito-?\s*R\$\s*([\d.,]+)", texto))
+    return deb, cred
+
+
+col_saldo = "Débito / Crédito"
+if col_saldo in dfcli.columns:
+    pares = dfcli[col_saldo].map(parse_saldo_cliente).tolist()
+else:
+    pares = [(0.0, 0.0)] * len(dfcli)
+dfcli["_debito"], dfcli["_credito"] = zip(*pares) if pares else ([], [])
+dfcli["_saldo"] = dfcli["_debito"] - dfcli["_credito"]
+
+devedores = dfcli[dfcli["_saldo"] > 0].sort_values("_saldo", ascending=False)
+n_devedores = len(devedores)
+total_fiado = float(devedores["_saldo"].sum())
+maior_devedor = devedores.iloc[0] if len(devedores) else None
+
 # ======================================================================
 #  7) CONTAS A PAGAR
 # ======================================================================
@@ -299,6 +328,13 @@ n_vencidas, v_vencidas = len(venc), float(venc["Valor"].sum())
 a_vencer = dfcp[dfcp["Status"] == "A Vencer"]
 n_a_vencer, v_a_vencer = len(a_vencer), float(a_vencer["Valor"].sum())
 n_vence_hoje = status_cp.get("Vence hoje", 0)
+
+STATUS_PENDENTES = ["Vencida", "Vence hoje", "A Vencer"]
+contas_pendentes = (
+    dfcp[dfcp["Status"].isin(STATUS_PENDENTES) & dfcp["Fornecedor"].notna()]
+    .sort_values("Vencimento")
+)
+total_pendente = float(contas_pendentes["Valor"].sum())
 
 contas_por_cat = dfcp.groupby("Categoria")["Valor"].sum().sort_values(ascending=False).head(6)
 contas_por_forn = dfcp.groupby("Fornecedor")["Valor"].sum().sort_values(ascending=False).head(6)
@@ -404,6 +440,23 @@ cocktail_rows = "\n".join(
 )
 
 criticos_rows = "\n".join(f"<tr><td>{esc(p)}</td></tr>" for p in criticos_exemplos) or "<tr><td>Nenhum item crítico.</td></tr>"
+
+STATUS_TAG = {"Vencida": "low", "Vence hoje": "mid", "A Vencer": "muted"}
+contas_pendentes_rows = "\n".join(
+    f'<tr><td><span class="tag {STATUS_TAG.get(r["Status"], "muted")}">{esc(r["Status"])}</span></td>'
+    f'<td>{r["Vencimento"].strftime("%d/%m/%Y") if pd.notna(r["Vencimento"]) else "-"}</td>'
+    f'<td>{esc(r["Fornecedor"])}</td><td>{esc(r["Categoria"]) if pd.notna(r["Categoria"]) else "-"}</td>'
+    f'<td>{esc(r["Referente a"]) if pd.notna(r["Referente a"]) else "-"}</td>'
+    f'<td class="num strong">{brl(r["Valor"])}</td></tr>'
+    for r in contas_pendentes.to_dict("records")
+) or '<tr><td colspan="6">Nenhuma conta pendente no momento — tudo em dia.</td></tr>'
+
+devedores_rows = "\n".join(
+    f'<tr><td>{esc(r["Nome"])}</td><td class="num">{brl(r["_debito"])}</td>'
+    f'<td class="num">{brl(r["_credito"]) if r["_credito"] else "-"}</td>'
+    f'<td class="num strong">{brl(r["_saldo"])}</td></tr>'
+    for r in devedores.to_dict("records")
+) or '<tr><td colspan="4">Nenhum cliente com saldo em aberto.</td></tr>'
 
 top10_clientes_hbar = hbar_rows([(r.nome, r.valor) for r in top7_clientes])
 top_margem_hbar = hbar_rows([(r["Produto"], r["Margem em Reais"]) for r in top_margem_reais.to_dict("records")])
@@ -546,6 +599,7 @@ td.strong{color:var(--text-primary); font-weight:600;}
 .tag.low{background:var(--critical-bg); color:var(--critical);}
 .tag.mid{background:var(--warning-bg); color:var(--warning);}
 .tag.high{background:var(--good-bg); color:var(--good);}
+.tag.muted{background:var(--neutral-info-bg); color:var(--neutral-info);}
 .grid-2{display:grid; grid-template-columns:1fr 1fr; gap:20px;}
 @media (max-width:860px){.grid-2{grid-template-columns:1fr;}}
 .grid-3{display:grid; grid-template-columns:repeat(3,1fr); gap:14px;}
@@ -727,12 +781,21 @@ sec_produtos = f"""
         <div class="hbar-list">{top10_clientes_hbar}</div>
       </div>
     </div>
+    <div class="panel">
+      <h3 class="panel-title">Clientes com saldo devedor (fiado)</h3>
+      <div class="panel-sub">{n_devedores} cliente(s) com débito em aberto na conta corrente · total {brl(total_fiado)}</div>
+      <div class="table-scroll"><table>
+        <thead><tr><th>Cliente</th><th class="num">Débito</th><th class="num">Crédito</th><th class="num">Saldo devedor</th></tr></thead>
+        <tbody>{devedores_rows}</tbody>
+      </table></div>
+    </div>
     <div class="insight">
       <h3>Pontos importantes</h3>
       <ul>
         <li>O produto mais vendido é <b>{esc(top_produtos.iloc[0]['Nome']) if len(top_produtos) else '-'}</b>, com {int(top_produtos.iloc[0]['Qtd.']) if len(top_produtos) else 0} unidades no período do relatório.</li>
         <li>Os <b>10 clientes do topo do ranking respondem por {pct(top10_concentracao)}</b> de todo o valor de compras rastreado — um programa simples de fidelidade para esse grupo protege receita concentrada.</li>
-        <li>{'<b>' + ', '.join(esc(p) for p in criticos_alto_giro) + '</b> está(ão) ao mesmo tempo entre os mais vendidos e em situação crítica de estoque — priorizar essas compras primeiro.' if criticos_alto_giro else 'Nenhum produto de alto giro está em situação crítica de estoque no momento.'}</li>
+        <li>{('<b>' + ', '.join(esc(p) for p in criticos_alto_giro) + '</b> ' + ('está' if len(criticos_alto_giro) == 1 else 'estão') + ' ao mesmo tempo entre os mais vendidos e em situação crítica de estoque — priorizar essa(s) compra(s) primeiro.') if criticos_alto_giro else 'Nenhum produto de alto giro está em situação crítica de estoque no momento.'}</li>
+        <li>{('O fiado em aberto soma <b>' + brl(total_fiado) + '</b> em ' + str(n_devedores) + ' cliente(s); <b>' + esc(maior_devedor['Nome']) + '</b> concentra o maior saldo devedor (' + brl(maior_devedor['_saldo']) + ').') if maior_devedor is not None else 'Nenhum cliente com saldo devedor em aberto no momento.'}</li>
       </ul>
     </div>
   </section>
@@ -782,7 +845,7 @@ sec_estoque = f"""
       <h3>Pontos importantes</h3>
       <ul>
         <li>Apenas <b>{pct(n_ok/planej_n*100 if planej_n else 0)}</b> dos produtos estão em status "OK" de estoque — o grosso está em <b>excesso ({pct(n_excesso/planej_n*100 if planej_n else 0)})</b>, <b>sem giro ({pct(n_semgiro/planej_n*100 if planej_n else 0)})</b> ou <b>crítico ({pct(n_critico/planej_n*100 if planej_n else 0)})</b>.</li>
-        <li>{('<b>' + ', '.join(esc(p) for p in criticos_alto_giro) + '</b> combinam alta venda com ruptura de estoque — são a prioridade de compra.') if criticos_alto_giro else 'Nenhum item de alto giro está em ruptura no momento — bom sinal de reposição.'}</li>
+        <li>{('<b>' + ', '.join(esc(p) for p in criticos_alto_giro) + '</b> ' + ('combina' if len(criticos_alto_giro) == 1 else 'combinam') + ' alta venda com ruptura de estoque — ' + ('é a' if len(criticos_alto_giro) == 1 else 'são a') + ' prioridade de compra.') if criticos_alto_giro else 'Nenhum item de alto giro está em ruptura no momento — bom sinal de reposição.'}</li>
         <li>Os {n_semgiro} itens "sem giro" são candidatos naturais a saírem do cardápio/prateleira, liberando espaço e capital.</li>
       </ul>
     </div>
@@ -797,6 +860,14 @@ sec_financeiro = f"""
       <span class="chip critical"><span class="dot"></span>Vencidas · {n_vencidas} ({brl(v_vencidas)})</span>
       <span class="chip warning"><span class="dot"></span>Vence hoje · {n_vence_hoje}</span>
       <span class="chip neutral"><span class="dot"></span>A vencer · {n_a_vencer} ({brl(v_a_vencer)})</span>
+    </div>
+    <div class="panel" style="margin-top:20px;">
+      <h3 class="panel-title">Contas a pagar em aberto</h3>
+      <div class="panel-sub">{len(contas_pendentes)} conta(s) pendente(s) · total {brl(total_pendente)} · ordenado por vencimento</div>
+      <div class="table-scroll"><table>
+        <thead><tr><th>Status</th><th>Vencimento</th><th>Fornecedor</th><th>Categoria</th><th>Referente a</th><th class="num">Valor</th></tr></thead>
+        <tbody>{contas_pendentes_rows}</tbody>
+      </table></div>
     </div>
     <div class="grid-2" style="margin-top:20px;">
       <div class="panel">

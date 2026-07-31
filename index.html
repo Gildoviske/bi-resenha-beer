@@ -129,6 +129,7 @@ td.strong{color:var(--text-primary); font-weight:600;}
 .tag.low{background:var(--critical-bg); color:var(--critical);}
 .tag.mid{background:var(--warning-bg); color:var(--warning);}
 .tag.high{background:var(--good-bg); color:var(--good);}
+.tag.muted{background:var(--neutral-info-bg); color:var(--neutral-info);}
 .grid-2{display:grid; grid-template-columns:1fr 1fr; gap:20px;}
 @media (max-width:860px){.grid-2{grid-template-columns:1fr;}}
 .grid-3{display:grid; grid-template-columns:repeat(3,1fr); gap:14px;}
@@ -144,7 +145,7 @@ footer a{color:var(--text-muted);}
     <p class="hero-sub">Consolidado das planilhas operacionais do bar — faturamento, margem, estoque, compras, clientes e contas a pagar — organizado em seções com os pontos que pedem atenção agora.</p>
     <div class="hero-meta">
       <span>Período: <strong>Jan/2025 – Jun/2026 fechado, Jul/2026 em andamento</strong></span>
-      <span>Atualizado em <strong>31/07/2026 às 10:28</strong></span>
+      <span>Atualizado em <strong>31/07/2026 às 10:55</strong></span>
       <span>Fonte: exportações do sistema de gestão do bar (Google Drive)</span>
     </div>
   </div>
@@ -390,12 +391,38 @@ footer a{color:var(--text-muted);}
 <div class="hbar-row"><span class="name">GUILHERME CASTELO</span><div class="hbar-track"><div class="hbar" style="width:62.9%"></div></div><span class="val">R$ 273,00</span></div></div>
       </div>
     </div>
+    <div class="panel">
+      <h3 class="panel-title">Clientes com saldo devedor (fiado)</h3>
+      <div class="panel-sub">18 cliente(s) com débito em aberto na conta corrente · total R$ 906,75</div>
+      <div class="table-scroll"><table>
+        <thead><tr><th>Cliente</th><th class="num">Débito</th><th class="num">Crédito</th><th class="num">Saldo devedor</th></tr></thead>
+        <tbody><tr><td>FABRICIO OLIVEIRA</td><td class="num">R$ 168,65</td><td class="num">-</td><td class="num strong">R$ 168,65</td></tr>
+<tr><td>MARCOS ALBERTO FERRAZ - CURUMIM</td><td class="num">R$ 133,00</td><td class="num">-</td><td class="num strong">R$ 133,00</td></tr>
+<tr><td>GUILHERME (PRETO POBRE FELIZ)</td><td class="num">R$ 125,75</td><td class="num">-</td><td class="num strong">R$ 125,75</td></tr>
+<tr><td>VALTER PAI DO RICARDO</td><td class="num">R$ 93,50</td><td class="num">-</td><td class="num strong">R$ 93,50</td></tr>
+<tr><td>ELVIS BALBINO</td><td class="num">R$ 88,00</td><td class="num">-</td><td class="num strong">R$ 88,00</td></tr>
+<tr><td>FILIPE REPAS</td><td class="num">R$ 46,50</td><td class="num">-</td><td class="num strong">R$ 46,50</td></tr>
+<tr><td>MARCELO JAGUAR</td><td class="num">R$ 53,15</td><td class="num">R$ 7,00</td><td class="num strong">R$ 46,15</td></tr>
+<tr><td>VANDERLEI CAMINHAO</td><td class="num">R$ 42,00</td><td class="num">-</td><td class="num strong">R$ 42,00</td></tr>
+<tr><td>GIOVANNI BROCHINI</td><td class="num">R$ 41,90</td><td class="num">-</td><td class="num strong">R$ 41,90</td></tr>
+<tr><td>FÁBIO CIRILLO</td><td class="num">R$ 35,90</td><td class="num">R$ 9,10</td><td class="num strong">R$ 26,80</td></tr>
+<tr><td>EDILSON (IRMÃO DE ELVIS)</td><td class="num">R$ 25,00</td><td class="num">-</td><td class="num strong">R$ 25,00</td></tr>
+<tr><td>EDIVALDO DOS SANTOS</td><td class="num">R$ 15,50</td><td class="num">-</td><td class="num strong">R$ 15,50</td></tr>
+<tr><td>DIEGO XAVIER</td><td class="num">R$ 14,50</td><td class="num">-</td><td class="num strong">R$ 14,50</td></tr>
+<tr><td>MILTON</td><td class="num">R$ 12,00</td><td class="num">-</td><td class="num strong">R$ 12,00</td></tr>
+<tr><td>SAO PAULINO</td><td class="num">R$ 10,00</td><td class="num">-</td><td class="num strong">R$ 10,00</td></tr>
+<tr><td>MARCELA CARDOSO</td><td class="num">R$ 9,50</td><td class="num">-</td><td class="num strong">R$ 9,50</td></tr>
+<tr><td>MARIA JÚLIA TREVISAN</td><td class="num">R$ 5,00</td><td class="num">-</td><td class="num strong">R$ 5,00</td></tr>
+<tr><td>FRANCIELE ROSSO</td><td class="num">R$ 3,00</td><td class="num">-</td><td class="num strong">R$ 3,00</td></tr></tbody>
+      </table></div>
+    </div>
     <div class="insight">
       <h3>Pontos importantes</h3>
       <ul>
         <li>O produto mais vendido é <b>ANTARCTICA BOA 350ML</b>, com 559 unidades no período do relatório.</li>
         <li>Os <b>10 clientes do topo do ranking respondem por 52,5%</b> de todo o valor de compras rastreado — um programa simples de fidelidade para esse grupo protege receita concentrada.</li>
-        <li><b>ANTARCTICA BOA 1L</b> está(ão) ao mesmo tempo entre os mais vendidos e em situação crítica de estoque — priorizar essas compras primeiro.</li>
+        <li><b>ANTARCTICA BOA 1L</b> está ao mesmo tempo entre os mais vendidos e em situação crítica de estoque — priorizar essa(s) compra(s) primeiro.</li>
+        <li>O fiado em aberto soma <b>R$ 906,75</b> em 18 cliente(s); <b>FABRICIO OLIVEIRA</b> concentra o maior saldo devedor (R$ 168,65).</li>
       </ul>
     </div>
   </section>
@@ -454,7 +481,7 @@ footer a{color:var(--text-muted);}
       <h3>Pontos importantes</h3>
       <ul>
         <li>Apenas <b>13,3%</b> dos produtos estão em status "OK" de estoque — o grosso está em <b>excesso (29,4%)</b>, <b>sem giro (27,5%)</b> ou <b>crítico (19,0%)</b>.</li>
-        <li><b>ANTARCTICA BOA 1L</b> combinam alta venda com ruptura de estoque — são a prioridade de compra.</li>
+        <li><b>ANTARCTICA BOA 1L</b> combina alta venda com ruptura de estoque — é a prioridade de compra.</li>
         <li>Os 58 itens "sem giro" são candidatos naturais a saírem do cardápio/prateleira, liberando espaço e capital.</li>
       </ul>
     </div>
@@ -468,6 +495,23 @@ footer a{color:var(--text-muted);}
       <span class="chip critical"><span class="dot"></span>Vencidas · 1 (R$ 139,24)</span>
       <span class="chip warning"><span class="dot"></span>Vence hoje · 3</span>
       <span class="chip neutral"><span class="dot"></span>A vencer · 6 (R$ 3.849,77)</span>
+    </div>
+    <div class="panel" style="margin-top:20px;">
+      <h3 class="panel-title">Contas a pagar em aberto</h3>
+      <div class="panel-sub">10 conta(s) pendente(s) · total R$ 5.152,79 · ordenado por vencimento</div>
+      <div class="table-scroll"><table>
+        <thead><tr><th>Status</th><th>Vencimento</th><th>Fornecedor</th><th>Categoria</th><th>Referente a</th><th class="num">Valor</th></tr></thead>
+        <tbody><tr><td><span class="tag low">Vencida</span></td><td>03/07/2026</td><td>CPFL ENERGIA</td><td>ENERGIA</td><td>REFERENTE A ENERGIA MES 07</td><td class="num strong">R$ 139,24</td></tr>
+<tr><td><span class="tag mid">Vence hoje</span></td><td>31/07/2026</td><td>L&amp;M CIGARROS</td><td>TABACARIA</td><td>REFERENTE A CIGARROS SEMANAIS</td><td class="num strong">R$ 562,50</td></tr>
+<tr><td><span class="tag mid">Vence hoje</span></td><td>31/07/2026</td><td>SPAL INDÚSTRIA COCA-COLA</td><td>BEBIDAS</td><td>REFERENTE A COCA-COLA</td><td class="num strong">R$ 351,28</td></tr>
+<tr><td><span class="tag mid">Vence hoje</span></td><td>31/07/2026</td><td>FRANCIELE</td><td>ESTABELECIMENTO</td><td>REFERENTE A FREELANCER DA FRAN</td><td class="num strong">R$ 250,00</td></tr>
+<tr><td><span class="tag muted">A Vencer</span></td><td>03/08/2026</td><td>AMBEV S.A</td><td>BEBIDAS</td><td>REFERENTE A AMBEV</td><td class="num strong">R$ 1.749,59</td></tr>
+<tr><td><span class="tag muted">A Vencer</span></td><td>04/08/2026</td><td>ADRIANO ROCHA DISTRIBUIDORA</td><td>MERCEARIA</td><td>REFERENTE A MERCEARIA</td><td class="num strong">R$ 467,48</td></tr>
+<tr><td><span class="tag muted">A Vencer</span></td><td>04/08/2026</td><td>LINCE DISTRIBUIDORA DE BEBIDAS</td><td>BEBIDAS</td><td>REFERENTE A HEINEKEN</td><td class="num strong">R$ 184,32</td></tr>
+<tr><td><span class="tag muted">A Vencer</span></td><td>04/08/2026</td><td>LINCE DISTRIBUIDORA DE BEBIDAS</td><td>BEBIDAS</td><td>REFERENTE A HEINEKEN</td><td class="num strong">R$ 64,68</td></tr>
+<tr><td><span class="tag muted">A Vencer</span></td><td>10/08/2026</td><td>RICARDO</td><td>ALUGUEL</td><td>REFERENTE A ALUGUEL</td><td class="num strong">R$ 700,00</td></tr>
+<tr><td><span class="tag muted">A Vencer</span></td><td>27/08/2026</td><td>NUBANK</td><td>ESTABELECIMENTO</td><td>REFERENTE A FATURA DO NUBANK</td><td class="num strong">R$ 683,70</td></tr></tbody>
+      </table></div>
     </div>
     <div class="grid-2" style="margin-top:20px;">
       <div class="panel">
