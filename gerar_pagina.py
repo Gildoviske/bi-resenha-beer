@@ -524,22 +524,31 @@ def forn_completo(nome):
     return _txt(nome)
 
 
-_EST_INFO = dfe.drop_duplicates("Código").set_index("Código")[
-    ["Custo", "Fornecedor", "Categoria"]].to_dict("index")
+# O Código das duas planilhas saiu de sincronia: o mesmo PR_ aponta para
+# produtos diferentes em cada uma, então cruzar por ele traz o fornecedor e o
+# custo de outro item. O nome do produto é a chave confiável — é por ele que a
+# própria planilha faz o VLOOKUP das colunas Fornecedor e Categoria.
+_EST_POR_NOME = {
+    _txt(r["Produto"]).upper(): r
+    for r in dfe.drop_duplicates("Produto").to_dict("records")
+}
 _CUSTO_CAT = dfe[dfe["Custo"] > 0].groupby("Categoria")["Custo"].median().to_dict()
 SEM_FORNECEDOR = "Sem fornecedor no cadastro"
 
 
 def _monta_item(registro):
-    info = _EST_INFO.get(registro["Código"], {})
+    nome = _txt(registro["Produto"])
+    info = _EST_POR_NOME.get(nome.upper(), {})
     categoria = _txt(info.get("Categoria")) or _txt(registro.get("Categoria")) or "SEM CATEGORIA"
     custo = float(info.get("Custo") or 0)
     if custo <= 0:
         custo = float(_CUSTO_CAT.get(categoria, 0) or 0)
+    # se o produto não está no estoque, sobra o que a própria planilha calculou
     fornecedor = forn_completo(info.get("Fornecedor")) or forn_completo(registro.get("Fornecedor"))
     qtd = float(pd.to_numeric(registro.get("Pedido ajustado"), errors="coerce") or 0)
     return {
-        "produto": _txt(registro["Produto"]), "cat": categoria, "qtd": int(qtd),
+        "produto": nome, "cat": categoria, "qtd": int(qtd),
+        "no_estoque": bool(info),
         "custo": custo, "valor": custo * qtd, "status": _txt(registro.get("Status")),
         "forn": fornecedor or SEM_FORNECEDOR, "sem_forn": fornecedor is None,
         "estoque": float(pd.to_numeric(registro.get("Estoque atual"), errors="coerce") or 0),
@@ -564,6 +573,7 @@ total_verde = sum(i["valor"] for i in itens_verdes)
 total_roxo = sum(i["valor"] for i in itens_roxos)
 n_verde, n_roxo, n_sem_marca = len(itens_verdes), len(itens_roxos), len(itens_sem_marca)
 n_sem_forn = sum(1 for i in itens_verdes if i["sem_forn"])
+n_fora_estoque = sum(1 for i in itens_verdes + itens_roxos if not i["no_estoque"])
 
 
 def _agrupa(itens):
@@ -1243,6 +1253,7 @@ sec_compras = f"""
         <li>{('<b>' + str(n_sem_marca) + ' produto(s) em estado crítico</b> ainda não foram pintados, somando ' + brl(sum(i["valor"] for i in itens_sem_marca)) + ' se forem comprados na quantidade sugerida — são as decisões que faltam.') if n_sem_marca else 'Todo produto em estado crítico já está marcado de verde ou de roxo: nenhuma decisão pendente.'}</li>
         <li>{('<b>' + str(n_roxo) + ' produto(s)</b> estão de roxo, ' + brl(total_roxo) + ' já pedidos. Quando a mercadoria chegar e o estoque for reexportado, tire a cor para eles saírem da lista.') if n_roxo else 'Nada marcado como já pedido no momento.'}</li>
         <li>{('<b>' + str(n_sem_forn) + ' item(ns) verdes</b> não têm fornecedor no cadastro de estoque e aparecem agrupados como "' + SEM_FORNECEDOR + '" — preencher esse campo organiza o total por fornecedor.') if n_sem_forn else 'Todos os itens marcados têm fornecedor cadastrado, então o total por fornecedor está completo.'}</li>
+        <li>{('<b>' + str(n_fora_estoque) + ' produto(s) marcado(s)</b> não constam no cadastro de estoque pelo nome, então o custo veio da mediana da categoria e o valor deles é aproximado.') if n_fora_estoque else 'Todos os produtos marcados foram encontrados no cadastro de estoque, então custo e fornecedor são os reais.'}</li>
         <li>Tons lidos na planilha — {esc(tons_txt)}. A classificação é por matiz, então qualquer verde ou roxo da paleta do Excel funciona.</li>
       </ul>
     </div>
