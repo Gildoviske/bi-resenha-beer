@@ -389,19 +389,65 @@ VERDE, ROXO = "verde", "roxo"
 ROTULO_COR = {VERDE: "vou comprar", ROXO: "já pedi"}
 
 
+def _cores_do_tema():
+    """Paleta do tema do arquivo, na ordem em que o atributo theme="N" das
+    células a indexa. Sem isto, uma cor escolhida na linha de cima da paleta
+    do Excel (que é cor de tema, não RGB fixo) passa despercebida."""
+    import zipfile
+
+    try:
+        with zipfile.ZipFile(path("PLANEJAMENTO DE COMPRAS - RESENHA BEER.xlsx")) as z:
+            xml = z.read("xl/theme/theme1.xml").decode("utf-8")
+    except (KeyError, OSError):
+        return []
+    bloco = re.search(r"<a:clrScheme.*?</a:clrScheme>", xml, re.S)
+    if bloco is None:
+        return []
+    # o Excel inverte claro/escuro nos dois primeiros pares do esquema, então
+    # esta é a ordem em que o atributo theme="N" das células indexa a paleta
+    ordem = ["lt1", "dk1", "lt2", "dk2", "accent1", "accent2", "accent3",
+             "accent4", "accent5", "accent6", "hlink", "folHlink"]
+    paleta = []
+    for nome in ordem:
+        trecho = re.search(rf"<a:{nome}>(.*?)</a:{nome}>", bloco.group(0), re.S)
+        cor = re.search(r'(?:srgbClr val|lastClr)="([0-9A-Fa-f]{6})"',
+                        trecho.group(1)) if trecho else None
+        paleta.append(cor.group(1) if cor else None)
+    return paleta
+
+
+CORES_TEMA = _cores_do_tema()
+
+
+def _aplica_tint(hexa, tint):
+    """Clareia (tint > 0) ou escurece (tint < 0) mexendo só na luminosidade,
+    como o Excel faz quando se escolhe um tom mais claro da mesma cor."""
+    r, g, b = (int(hexa[i:i + 2], 16) / 255 for i in (0, 2, 4))
+    matiz, lum, sat = colorsys.rgb_to_hls(r, g, b)
+    lum = lum * (1 + tint) if tint < 0 else lum * (1 - tint) + tint
+    r, g, b = colorsys.hls_to_rgb(matiz, min(max(lum, 0.0), 1.0), sat)
+    return tuple(round(v * 255) for v in (r, g, b))
+
+
 def _rgb_da_celula(cel):
-    """Cor de preenchimento sólido de uma célula, como (r, g, b)."""
+    """Cor de preenchimento sólido de uma célula, como (r, g, b). Resolve
+    tanto cor fixa quanto cor de tema com clareamento."""
     fill = cel.fill
     if fill is None or fill.patternType != "solid":
         return None
     cor = fill.fgColor
-    if cor is None or cor.type != "rgb" or not isinstance(cor.rgb, str):
+    if cor is None:
         return None
-    try:
-        hexa = cor.rgb[-6:]
-        return tuple(int(hexa[i:i + 2], 16) for i in (0, 2, 4))
-    except ValueError:
-        return None
+    if cor.type == "rgb" and isinstance(cor.rgb, str):
+        try:
+            hexa = cor.rgb[-6:]
+            return tuple(int(hexa[i:i + 2], 16) for i in (0, 2, 4))
+        except ValueError:
+            return None
+    if cor.type == "theme" and isinstance(cor.theme, int):
+        if 0 <= cor.theme < len(CORES_TEMA) and CORES_TEMA[cor.theme]:
+            return _aplica_tint(CORES_TEMA[cor.theme], float(cor.tint or 0))
+    return None
 
 
 def _classifica_cor(rgb):
@@ -1340,6 +1386,183 @@ def _remover_aba_pedidos(partes, nomes):
     return partes, nomes, "aba PEDIDOS removida"
 
 
+# ----------------------------------------------------------------------
+#  ABA RESUMO DE PEDIDOS
+#
+#  Um bloco por fornecedor com o que está pintado de roxo, refeito do zero
+#  a cada execução. Serve para consultar o que já foi pedido sem sair do
+#  Excel, sem precisar filtrar a planilha inteira pela cor.
+# ----------------------------------------------------------------------
+ABA_RESUMO = "RESUMO DE PEDIDOS"
+LARGURAS_RESUMO = {1: 44, 2: 14, 3: 9, 4: 14, 5: 15}
+CABECALHOS_RESUMO = ["Produto", "Status", "Qtd.", "Custo unit.", "Total"]
+
+
+def _cel(ref, estilo, valor=None, tipo="texto"):
+    if valor is None or valor == "":
+        return f'<c r="{ref}" s="{estilo}"/>'
+    if tipo == "texto":
+        return (f'<c r="{ref}" s="{estilo}" t="inlineStr"><is>'
+                f'<t xml:space="preserve">{html_lib.escape(str(valor), quote=False)}</t>'
+                f"</is></c>")
+    return f'<c r="{ref}" s="{estilo}"><v>{valor}</v></c>'
+
+
+def _estilo_usado(sheet, ref, padrao="0"):
+    """Índice de estilo de uma célula já existente, para reaproveitar a
+    aparência da planilha em vez de inventar formatação nova."""
+    achado = re.search(rf'<c r="{ref}"(?: s="(\d+)")?', sheet)
+    return achado.group(1) if achado and achado.group(1) else padrao
+
+
+def _garantir_numfmt(styles, code):
+    achado = re.search(rf'<numFmt numFmtId="(\d+)" formatCode="{re.escape(code)}"', styles)
+    if achado:
+        return achado.group(1), styles
+    usados = {int(i) for i in re.findall(r'<numFmt numFmtId="(\d+)"', styles)}
+    novo = str(max(usados | {163}) + 1)
+    marca = f'<numFmt numFmtId="{novo}" formatCode="{code}"/>'
+    bloco = re.search(r'<numFmts count="(\d+)">', styles)
+    if bloco:
+        styles = styles.replace(bloco.group(0), f'<numFmts count="{int(bloco.group(1)) + 1}">', 1)
+        styles = styles.replace("</numFmts>", marca + "</numFmts>", 1)
+    else:
+        styles = styles.replace("<cellXfs", f'<numFmts count="1">{marca}</numFmts><cellXfs', 1)
+    return novo, styles
+
+
+def _garantir_xf(styles, xf):
+    bloco = re.search(r'<cellXfs count="(\d+)">(.*?)</cellXfs>', styles, re.S)
+    existentes = re.findall(r"<xf [^>]*?(?:/>|>.*?</xf>)", bloco.group(2), re.S)
+    if xf in existentes:
+        return str(existentes.index(xf)), styles
+    styles = styles.replace(
+        bloco.group(0),
+        f'<cellXfs count="{len(existentes) + 1}">{bloco.group(2)}{xf}</cellXfs>', 1)
+    return str(len(existentes)), styles
+
+
+def _xf_com_moeda(styles, indice, id_fmt):
+    """Mesmo estilo de um índice existente, mas mostrando o número em reais.
+    Aproveita fonte, fundo e borda que já combinam com a planilha em vez de
+    inventar uma formatação nova só para a linha de total."""
+    bloco = re.search(r'<cellXfs count="(\d+)">(.*?)</cellXfs>', styles, re.S)
+    existentes = re.findall(r"<xf [^>]*?(?:/>|>.*?</xf>)", bloco.group(2), re.S)
+    try:
+        base = existentes[int(indice)]
+    except (ValueError, IndexError):
+        base = existentes[0]
+    novo = re.sub(r'numFmtId="\d+"', f'numFmtId="{id_fmt}"', base, count=1)
+    if "applyNumberFormat" not in novo:
+        novo = novo.replace("<xf ", '<xf applyNumberFormat="1" ', 1)
+    return _garantir_xf(styles, novo)
+
+
+def _montar_resumo(styles, est_titulo, est_cab):
+    """XML da aba, com um bloco por fornecedor e o total geral no fim."""
+    id_reais, styles = _garantir_numfmt(styles, "&quot;R$&quot;\\ #,##0.00")
+    est_moeda, styles = _garantir_xf(
+        styles, f'<xf numFmtId="{id_reais}" fontId="0" fillId="0" borderId="0" xfId="0" '
+                'applyNumberFormat="1"/>')
+    est_cab_moeda, styles = _xf_com_moeda(styles, est_cab, id_reais)
+    est_titulo_moeda, styles = _xf_com_moeda(styles, est_titulo, id_reais)
+
+    linhas, n = [], 0
+
+    def escreve(celulas, altura=None):
+        nonlocal n
+        n += 1
+        corpo = "".join(celulas(n))
+        extra = f' ht="{altura}" customHeight="1"' if altura else ""
+        linhas.append(f'<row r="{n}" spans="1:5"{extra}>{corpo}</row>')
+
+    escreve(lambda r: [_cel(f"A{r}", est_titulo, ABA_RESUMO)]
+            + [_cel(f"{c}{r}", est_titulo) for c in "BCDE"], altura=24)
+    escreve(lambda r: [_cel(f"A{r}", "0",
+                            f"Pintado de roxo na aba PLANEJAMENTO · refeito em {gerado_em}")])
+
+    if not pedidos_por_fornecedor:
+        escreve(lambda r: [_cel(f"A{r}", "0", "Nenhum produto marcado como já pedido.")])
+    for grupo in pedidos_por_fornecedor:
+        escreve(lambda r: [])  # respiro entre fornecedores
+        escreve(lambda r, g=grupo: [_cel(f"A{r}", est_cab, g["forn"])]
+                + [_cel(f"B{r}", est_cab, f'{g["itens"]} produtos')]
+                + [_cel(f"C{r}", est_cab, g["qtd"], "numero")]
+                + [_cel(f"D{r}", est_cab)]
+                + [_cel(f"E{r}", est_cab_moeda, round(g["valor"], 2), "numero")])
+        escreve(lambda r: [_cel(f"{c}{r}", est_cab, t)
+                           for c, t in zip("ABCDE", CABECALHOS_RESUMO)])
+        for item in sorted([i for i in itens_roxos if i["forn"] == grupo["forn"]],
+                           key=lambda i: -i["valor"]):
+            escreve(lambda r, it=item: [
+                _cel(f"A{r}", "0", it["produto"]),
+                _cel(f"B{r}", "0", it["status"] or "—"),
+                _cel(f"C{r}", "0", it["qtd"], "numero"),
+                _cel(f"D{r}", est_moeda, round(it["custo"], 2), "numero"),
+                _cel(f"E{r}", est_moeda, round(it["valor"], 2), "numero"),
+            ])
+
+    escreve(lambda r: [])
+    escreve(lambda r: [_cel(f"A{r}", est_titulo, "TOTAL GERAL JÁ PEDIDO")]
+            + [_cel(f"{c}{r}", est_titulo) for c in "BC"]
+            + [_cel(f"D{r}", est_titulo, f"{len(itens_roxos)} produtos")]
+            + [_cel(f"E{r}", est_titulo_moeda, round(total_roxo, 2), "numero")])
+
+    cols = "".join(f'<col min="{i}" max="{i}" width="{w}" customWidth="1"/>'
+                   for i, w in LARGURAS_RESUMO.items())
+    xml = ('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+           '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
+           f'<dimension ref="A1:E{max(n, 1)}"/>'
+           '<sheetViews><sheetView workbookViewId="0"><pane ySplit="2" topLeftCell="A3" '
+           'activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>'
+           '<sheetFormatPr defaultRowHeight="15"/>'
+           f"<cols>{cols}</cols><sheetData>{''.join(linhas)}</sheetData>"
+           '<pageMargins left="0.7" right="0.7" top="0.75" bottom="0.75" '
+           'header="0.3" footer="0.3"/></worksheet>')
+    return xml, styles
+
+
+def _criar_ou_substituir_resumo(partes, nomes, styles, sheet_planej):
+    """Põe a aba no pacote. Se já existir, só troca o conteúdo dela."""
+    est_titulo = _estilo_usado(sheet_planej, "J1")
+    est_cab = _estilo_usado(sheet_planej, "A2")
+    xml, styles = _montar_resumo(styles, est_titulo, est_cab)
+
+    wbx = partes["xl/workbook.xml"].decode("utf-8")
+    existente = re.search(rf'<sheet name="{ABA_RESUMO}"[^>]*r:id="([^"]+)"', wbx)
+    rels = partes["xl/_rels/workbook.xml.rels"].decode("utf-8")
+
+    if existente:
+        destino = re.search(rf'<Relationship Id="{existente.group(1)}"[^>]*Target="([^"]+)"',
+                            rels).group(1)
+        caminho = "xl/" + destino.lstrip("/")
+    else:
+        usados = [int(m) for m in re.findall(r"xl/worksheets/sheet(\d+)\.xml", " ".join(nomes))]
+        caminho = f"xl/worksheets/sheet{max(usados or [0]) + 1}.xml"
+        rid = "rId" + str(max(int(m) for m in re.findall(r'Id="rId(\d+)"', rels)) + 1)
+        rels = rels.replace(
+            "</Relationships>",
+            f'<Relationship Id="{rid}" Type="http://schemas.openxmlformats.org/'
+            f'officeDocument/2006/relationships/worksheet" '
+            f'Target="{caminho[3:]}"/></Relationships>', 1)
+        partes["xl/_rels/workbook.xml.rels"] = rels.encode("utf-8")
+        folha_id = max(int(m) for m in re.findall(r'sheetId="(\d+)"', wbx)) + 1
+        wbx = wbx.replace("</sheets>",
+                          f'<sheet name="{ABA_RESUMO}" sheetId="{folha_id}" '
+                          f'r:id="{rid}"/></sheets>', 1)
+        partes["xl/workbook.xml"] = wbx.encode("utf-8")
+        ct = partes["[Content_Types].xml"].decode("utf-8")
+        partes["[Content_Types].xml"] = ct.replace(
+            "</Types>",
+            f'<Override PartName="/{caminho}" ContentType="application/vnd.'
+            'openxmlformats-officedocument.spreadsheetml.worksheet+xml"/></Types>',
+            1).encode("utf-8")
+        nomes = nomes + [caminho]
+
+    partes[caminho] = xml.encode("utf-8")
+    return partes, nomes, styles
+
+
 def simplificar_planilha():
     """Aplica a limpeza num temporário, confere e só então troca o original."""
     import shutil
@@ -1353,6 +1576,10 @@ def simplificar_planilha():
     partes[arq_planej] = _limpar_bloco_agenda(
         partes[arq_planej].decode("utf-8")).encode("utf-8")
     partes, nomes, recado = _remover_aba_pedidos(partes, nomes)
+    partes, nomes, styles = _criar_ou_substituir_resumo(
+        partes, nomes, partes["xl/styles.xml"].decode("utf-8"),
+        partes[arq_planej].decode("utf-8"))
+    partes["xl/styles.xml"] = styles.encode("utf-8")
 
     # o _FilterDatabase é o nome oculto que o Excel mantém para o autofiltro;
     # tem de encolher junto, senão a planilha reabre com o filtro largo demais
@@ -1377,6 +1604,8 @@ def simplificar_planilha():
             raise RuntimeError(f"as colunas da agenda continuam na planilha: {sobrando}")
         if "PEDIDOS" in abas:
             raise RuntimeError("a aba PEDIDOS continua no arquivo")
+        if ABA_RESUMO not in abas:
+            raise RuntimeError(f"a aba {ABA_RESUMO} nao foi criada")
         shutil.move(str(tmp), str(PLANEJ_XLSX))
     except PermissionError:
         tmp.unlink(missing_ok=True)
@@ -1385,7 +1614,9 @@ def simplificar_planilha():
     except Exception:
         tmp.unlink(missing_ok=True)
         raise
-    return f"{recado}; bloco da agenda retirado das colunas R a X"
+    return (f"{recado}; bloco da agenda retirado das colunas R a X; "
+            f"aba {ABA_RESUMO} com {len(itens_roxos)} produto(s) de "
+            f"{len(pedidos_por_fornecedor)} fornecedor(es)")
 
 
 try:
