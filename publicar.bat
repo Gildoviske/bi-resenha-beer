@@ -8,7 +8,7 @@ if errorlevel 1 (
     exit /b 1
 )
 echo Publicando no GitHub...
-git add index.html
+git add index.html gerar_pagina.py publicar.bat .gitignore
 git commit -m "Atualizacao diaria"
 git push
 echo.

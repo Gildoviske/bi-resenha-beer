@@ -2,18 +2,21 @@
 """Gera o painel executivo do Resenha Beer a partir das planilhas do Drive.
 
 Uso: python gerar_pagina.py  (ou clique duas vezes em publicar.bat)
-Lê os arquivos em BASE (J:\\Meu Drive) e grava index.html nesta mesma pasta,
+Lê os arquivos em BASE (a pasta acima desta) e grava index.html nesta mesma pasta,
 pronta para publicar no GitHub Pages.
 """
+import colorsys
 import html as html_lib
 import re
-from datetime import datetime
+from datetime import date, datetime, timedelta
 from pathlib import Path
 from urllib.parse import quote
 
 import pandas as pd
 
-BASE = Path(r"J:\Meu Drive")
+# pasta onde ficam as planilhas: a pasta acima desta (ex.: G:\Meu Drive ou J:\Meu Drive),
+# assim funciona em qualquer PC independente da letra do drive do Google Drive
+BASE = Path(__file__).resolve().parent.parent
 OUT = Path(__file__).resolve().parent / "index.html"
 
 # ícone da aba do navegador: caneca de chopp em âmbar sobre fundo escuro,
@@ -255,6 +258,24 @@ estoque_por_cat = dfe.groupby("Categoria")["Custo Total"].sum().sort_values(asce
 #  5) PLANEJAMENTO DE COMPRAS
 # ======================================================================
 dfpl = pd.read_excel(path("PLANEJAMENTO DE COMPRAS - RESENHA BEER.xlsx"), sheet_name="PLANEJAMENTO", header=1)
+
+
+def ler_controles():
+    """Os dois ajustes que ficam na planilha: quantos dias de venda a
+    sugestão cobre (AA1) e a margem a mais aplicada em cima (AA2)."""
+    try:
+        from openpyxl import load_workbook
+        wb = load_workbook(path("PLANEJAMENTO DE COMPRAS - RESENHA BEER.xlsx"),
+                           read_only=True, data_only=True)
+        aba = wb["PLANEJAMENTO"]
+        dias, margem = aba["AA1"].value, aba["AA2"].value
+        wb.close()
+        return int(dias), float(margem or 0)
+    except (KeyError, TypeError, ValueError, OSError):
+        return 30, 0.0
+
+
+cobertura_dias, margem_compra = ler_controles()
 dfpl = dfpl[dfpl["Produto"].notna()]
 planej_n = len(dfpl)
 status_counts = dfpl["Status"].value_counts().to_dict()
@@ -356,10 +377,170 @@ periodo_label = (
 gerado_em = agora.strftime("%d/%m/%Y às %H:%M")
 
 
+
+# ======================================================================
+#  8) LISTA DE COMPRAS — o que está pintado na planilha
+#
+#  O controle é a cor da linha na aba PLANEJAMENTO: verde = vou comprar,
+#  roxo = já pedi. Sem data, prazo ou otimização — quem decide é quem
+#  pinta, e o painel só lê e soma.
+# ======================================================================
+VERDE, ROXO = "verde", "roxo"
+ROTULO_COR = {VERDE: "vou comprar", ROXO: "já pedi"}
+
+
+def _rgb_da_celula(cel):
+    """Cor de preenchimento sólido de uma célula, como (r, g, b)."""
+    fill = cel.fill
+    if fill is None or fill.patternType != "solid":
+        return None
+    cor = fill.fgColor
+    if cor is None or cor.type != "rgb" or not isinstance(cor.rgb, str):
+        return None
+    try:
+        hexa = cor.rgb[-6:]
+        return tuple(int(hexa[i:i + 2], 16) for i in (0, 2, 4))
+    except ValueError:
+        return None
+
+
+def _classifica_cor(rgb):
+    """Verde ou roxo pelo matiz, não pelo código exato: assim vale qualquer
+    tom que o Excel ofereça na paleta, claro ou escuro."""
+    if rgb is None:
+        return None
+    r, g, b = (v / 255 for v in rgb)
+    matiz, sat, brilho = colorsys.rgb_to_hsv(r, g, b)
+    if sat < 0.15 or brilho < 0.20:
+        return None  # branco, cinza ou preto: não é marcação
+    graus = matiz * 360
+    if 75 <= graus <= 175:
+        return VERDE
+    if 250 <= graus <= 330:
+        return ROXO
+    return None
+
+
+def ler_cores_planejamento():
+    """Cor de cada linha da aba PLANEJAMENTO. Olha Código e Produto, que são
+    as colunas sem formatação condicional — assim a regra de cor do Status
+    não se confunde com a marcação feita à mão."""
+    from openpyxl import load_workbook
+
+    cores, achadas = {}, {}
+    try:
+        wb = load_workbook(path("PLANEJAMENTO DE COMPRAS - RESENHA BEER.xlsx"))
+        ws = wb["PLANEJAMENTO"]
+        for linha in range(3, ws.max_row + 1):
+            marcas = []
+            for coluna in (1, 2):
+                rgb = _rgb_da_celula(ws.cell(row=linha, column=coluna))
+                marca = _classifica_cor(rgb)
+                if marca:
+                    marcas.append(marca)
+                    achadas.setdefault(marca, set()).add("#%02X%02X%02X" % rgb)
+            # roxo ganha do verde: é o estado mais adiantado da mesma linha
+            if ROXO in marcas:
+                cores[linha] = ROXO
+            elif VERDE in marcas:
+                cores[linha] = VERDE
+        wb.close()
+    except (KeyError, OSError) as erro:
+        print(f"AVISO - nao foi possivel ler as cores da planilha ({erro})")
+    return cores, {k: sorted(v) for k, v in achadas.items()}
+
+
+cores_por_linha, tons_encontrados = ler_cores_planejamento()
+
+# a aba tem o cabeçalho na linha 2, então o índice 0 do dataframe é a linha 3
+dfpl["_linha"] = [int(i) + 3 for i in dfpl.index]
+dfpl["_cor"] = [cores_por_linha.get(linha) for linha in dfpl["_linha"]]
+
+
+def _txt(v):
+    """Texto limpo, ou "" quando a célula vem vazia/NaN."""
+    return v.strip() if isinstance(v, str) and v.strip() and v.strip().lower() != "nan" else ""
+
+
+_FORN_CONTAS = sorted(dfcp["Fornecedor"].dropna().astype(str).unique(), key=len, reverse=True)
+
+
+def forn_completo(nome):
+    """No cadastro de estoque o fornecedor vem truncado em 20 caracteres;
+    casa pelo prefixo com o nome completo usado nas contas a pagar."""
+    n = _txt(nome).upper()
+    if not n or n == "0":
+        return None
+    for f in _FORN_CONTAS:
+        fu = f.upper()
+        if fu.startswith(n) or n.startswith(fu):
+            return f
+    return _txt(nome)
+
+
+_EST_INFO = dfe.drop_duplicates("Código").set_index("Código")[
+    ["Custo", "Fornecedor", "Categoria"]].to_dict("index")
+_CUSTO_CAT = dfe[dfe["Custo"] > 0].groupby("Categoria")["Custo"].median().to_dict()
+SEM_FORNECEDOR = "Sem fornecedor no cadastro"
+
+
+def _monta_item(registro):
+    info = _EST_INFO.get(registro["Código"], {})
+    categoria = _txt(info.get("Categoria")) or _txt(registro.get("Categoria")) or "SEM CATEGORIA"
+    custo = float(info.get("Custo") or 0)
+    if custo <= 0:
+        custo = float(_CUSTO_CAT.get(categoria, 0) or 0)
+    fornecedor = forn_completo(info.get("Fornecedor")) or forn_completo(registro.get("Fornecedor"))
+    qtd = float(pd.to_numeric(registro.get("Pedido ajustado"), errors="coerce") or 0)
+    return {
+        "produto": _txt(registro["Produto"]), "cat": categoria, "qtd": int(qtd),
+        "custo": custo, "valor": custo * qtd, "status": _txt(registro.get("Status")),
+        "forn": fornecedor or SEM_FORNECEDOR, "sem_forn": fornecedor is None,
+        "estoque": float(pd.to_numeric(registro.get("Estoque atual"), errors="coerce") or 0),
+    }
+
+
+def _lista(cor):
+    itens = [_monta_item(r) for r in dfpl[dfpl["_cor"] == cor].to_dict("records")]
+    return sorted(itens, key=lambda i: (i["forn"], -i["valor"]))
+
+
+itens_verdes = _lista(VERDE)
+itens_roxos = _lista(ROXO)
+
+# crítico que ainda não recebeu cor nenhuma: é o que pede decisão
+itens_sem_marca = sorted(
+    (_monta_item(r) for r in dfpl[dfpl["_cor"].isna() & (dfpl["Status"] == "CRÍTICO")].to_dict("records")),
+    key=lambda i: -i["valor"],
+)
+
+total_verde = sum(i["valor"] for i in itens_verdes)
+total_roxo = sum(i["valor"] for i in itens_roxos)
+n_verde, n_roxo, n_sem_marca = len(itens_verdes), len(itens_roxos), len(itens_sem_marca)
+n_sem_forn = sum(1 for i in itens_verdes if i["sem_forn"])
+
+
+def _agrupa(itens):
+    grupos = {}
+    for it in itens:
+        g = grupos.setdefault(it["forn"], {"forn": it["forn"], "itens": 0, "qtd": 0,
+                                           "valor": 0.0, "criticos": 0})
+        g["itens"] += 1
+        g["qtd"] += it["qtd"]
+        g["valor"] += it["valor"]
+        g["criticos"] += 1 if it["status"] == "CRÍTICO" else 0
+    return sorted(grupos.values(), key=lambda g: -g["valor"])
+
+
+compras_por_fornecedor = _agrupa(itens_verdes)
+pedidos_por_fornecedor = _agrupa(itens_roxos)
+maior_fornecedor = compras_por_fornecedor[0] if compras_por_fornecedor else None
+
+
 # ======================================================================
 #  HELPERS DE HTML
 # ======================================================================
-def hbar_rows(items, alt=False):
+def hbar_rows(items, alt=False, fmt=brl):
     if not items:
         return '<div class="hbar-row"><span class="name">Sem dados</span></div>'
     maxv = max(v for _, v in items) or 1
@@ -370,7 +551,7 @@ def hbar_rows(items, alt=False):
         out.append(
             f'<div class="hbar-row"><span class="name">{esc(label)}</span>'
             f'<div class="hbar-track"><div class="{cls}" style="width:{w:.1f}%"></div></div>'
-            f'<span class="val">{brl(val)}</span></div>'
+            f'<span class="val">{fmt(val)}</span></div>'
         )
     return "\n".join(out)
 
@@ -559,7 +740,7 @@ section.block:last-of-type{border-bottom:none;}
 .bar-pair{display:flex; align-items:flex-end; gap:3px; width:100%; height:100%; justify-content:center;}
 .bar-pair .bar{width:13px; border-radius:3px 3px 0 0; position:relative; cursor:default;}
 .bar.b25{background:var(--accent);} .bar.b26{background:var(--series-b);}
-.bar[data-tip]:hover::after, .hbar[data-tip]:hover::after, .col-bar[data-tip]:hover::after{
+.bar[data-tip]:hover::after, .hbar[data-tip]:hover::after, .col-bar[data-tip]:hover::after,
   content:attr(data-tip); position:absolute; bottom:calc(100% + 6px); left:50%; transform:translateX(-50%);
   background:var(--ink-900); color:#F3E9DA; font-size:0.72rem; font-weight:600; padding:4px 8px; border-radius:6px;
   white-space:nowrap; z-index:5; box-shadow:var(--shadow); font-variant-numeric:tabular-nums;
@@ -568,6 +749,8 @@ section.block:last-of-type{border-bottom:none;}
 .legend{display:flex; gap:18px; margin-top:14px; font-size:0.8rem; color:var(--text-secondary);}
 .legend span{display:inline-flex; align-items:center; gap:6px;}
 .legend i{width:10px; height:10px; border-radius:3px; display:inline-block;}
+/* sem isto, uma tabela larga estica a coluna do grid e vaza a página */
+.grid-2>*, .grid-3>*, .two-col>*{min-width:0;}
 .hour-chart{display:flex; align-items:flex-end; gap:3px; height:170px; padding-top:8px;}
 .hour-col{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; position:relative;}
 .col-bar{width:100%; max-width:22px; border-radius:3px 3px 0 0; background:var(--track); position:relative;}
@@ -625,7 +808,7 @@ SCRIPT = """
 
 sec_visao = f"""
   <section class="block" id="visao-geral">
-    <div class="block-head"><h2>Visão geral</h2><span class="block-num">01 / 07</span></div>
+    <div class="block-head"><h2>Visão geral</h2><span class="block-num">01 / 08</span></div>
     <div class="stat-grid">
       <div class="stat">
         <div class="label">Faturamento 2025</div>
@@ -662,7 +845,7 @@ sec_visao = f"""
 
 sec_faturamento = f"""
   <section class="block" id="faturamento">
-    <div class="block-head"><h2>Faturamento &amp; lucro mês a mês</h2><span class="block-num">02 / 07</span></div>
+    <div class="block-head"><h2>Faturamento &amp; lucro mês a mês</h2><span class="block-num">02 / 08</span></div>
     <div class="panel">
       <h3 class="panel-title">2025 vs. 2026, mês a mês</h3>
       <div class="panel-sub">Faturamento em R$ · passe o mouse sobre uma barra para ver o valor exato</div>
@@ -682,7 +865,7 @@ sec_faturamento = f"""
 
 sec_operacao = f"""
   <section class="block" id="operacao">
-    <div class="block-head"><h2>Operação diária — snapshot mais recente</h2><span class="block-num">03 / 07</span></div>
+    <div class="block-head"><h2>Operação diária — snapshot mais recente</h2><span class="block-num">03 / 08</span></div>
     <div class="two-col">
       <div class="panel">
         <h3 class="panel-title">Faturamento por horário</h3>
@@ -708,7 +891,7 @@ sec_operacao = f"""
 
 sec_margem = f"""
   <section class="block" id="margem">
-    <div class="block-head"><h2>Margem &amp; precificação</h2><span class="block-num">04 / 07</span></div>
+    <div class="block-head"><h2>Margem &amp; precificação</h2><span class="block-num">04 / 08</span></div>
     <div class="stat-grid">
       <div class="stat">
         <div class="label">Margem operacional média</div>
@@ -765,7 +948,7 @@ sec_margem = f"""
 
 sec_produtos = f"""
   <section class="block" id="produtos">
-    <div class="block-head"><h2>Produtos &amp; clientes</h2><span class="block-num">05 / 07</span></div>
+    <div class="block-head"><h2>Produtos &amp; clientes</h2><span class="block-num">05 / 08</span></div>
     <div class="grid-2">
       <div class="panel">
         <h3 class="panel-title">Produtos mais vendidos (por quantidade)</h3>
@@ -803,7 +986,7 @@ sec_produtos = f"""
 
 sec_estoque = f"""
   <section class="block" id="estoque">
-    <div class="block-head"><h2>Estoque &amp; planejamento de compras</h2><span class="block-num">06 / 07</span></div>
+    <div class="block-head"><h2>Estoque &amp; planejamento de compras</h2><span class="block-num">06 / 08</span></div>
     <div class="stat-grid">
       <div class="stat">
         <div class="label">Valor em estoque (custo)</div>
@@ -854,7 +1037,7 @@ sec_estoque = f"""
 
 sec_financeiro = f"""
   <section class="block" id="financeiro">
-    <div class="block-head"><h2>Financeiro — contas a pagar &amp; despesas</h2><span class="block-num">07 / 07</span></div>
+    <div class="block-head"><h2>Financeiro — contas a pagar &amp; despesas</h2><span class="block-num">07 / 08</span></div>
     <div class="chip-row">
       <span class="chip good"><span class="dot"></span>Pagas · {n_pagas}</span>
       <span class="chip critical"><span class="dot"></span>Vencidas · {n_vencidas} ({brl(v_vencidas)})</span>
@@ -899,6 +1082,127 @@ sec_financeiro = f"""
   </section>
 """
 
+# ----------------------------------------------------------------------
+#  LISTA DE COMPRAS — tabelas por cor e total por fornecedor
+# ----------------------------------------------------------------------
+COR_TAG = {VERDE: "high", ROXO: "mid"}
+STATUS_TAG_COMPRA = {"CRÍTICO": "low", "ATENÇÃO": "mid", "OK": "high"}
+
+
+def _linha_item(it, com_status=True):
+    status = (f'<td class="num"><span class="tag {STATUS_TAG_COMPRA.get(it["status"], "muted")}">'
+              f'{esc(it["status"] or "—")}</span></td>') if com_status else ""
+    return (f'<tr><td>{esc(it["produto"])}</td>'
+            f'<td>{esc(it["forn"])}</td>'
+            f'{status}'
+            f'<td class="num">{it["qtd"]}</td>'
+            f'<td class="num">{brl(it["custo"])}</td>'
+            f'<td class="num strong">{brl(it["valor"])}</td></tr>')
+
+
+def _tabela_itens(itens, vazio):
+    return "\n".join(_linha_item(i) for i in itens) or f'<tr><td colspan="6">{vazio}</td></tr>'
+
+
+def _linha_grupo(g):
+    return (f'<tr><td class="strong">{esc(g["forn"])}</td>'
+            f'<td class="num">{g["itens"]}</td>'
+            f'<td class="num">{g["qtd"]}</td>'
+            f'<td class="num">{g["criticos"]}</td>'
+            f'<td class="num strong">{brl(g["valor"])}</td></tr>')
+
+
+def _tabela_grupos(grupos, vazio):
+    return "\n".join(_linha_grupo(g) for g in grupos) or f'<tr><td colspan="5">{vazio}</td></tr>'
+
+
+verdes_rows = _tabela_itens(itens_verdes, "Nenhuma linha pintada de verde ainda.")
+roxos_rows = _tabela_itens(itens_roxos, "Nenhuma linha pintada de roxo ainda.")
+sem_marca_rows = _tabela_itens(itens_sem_marca, "Todo item crítico já foi marcado.")
+compras_forn_rows = _tabela_grupos(compras_por_fornecedor, "Nada marcado para comprar.")
+compras_forn_hbar = hbar_rows([(g["forn"], g["valor"]) for g in compras_por_fornecedor[:7]])
+
+tons_txt = " · ".join(
+    f'{ROTULO_COR[c]}: {", ".join(t)}' for c, t in sorted(tons_encontrados.items())
+) or "nenhuma cor encontrada nas colunas Código e Produto"
+
+sec_compras = f"""
+  <section class="block" id="compras">
+    <div class="block-head"><h2>Lista de compras — o que está marcado na planilha</h2><span class="block-num">08 / 08</span></div>
+    <p class="panel-sub" style="margin:-6px 0 22px;">
+      O controle é a cor da linha na aba PLANEJAMENTO: <b>verde</b> para o que você vai comprar,
+      <b>roxo</b> para o que já pediu. As quantidades saem da própria planilha, hoje ajustada
+      para cobrir <b>{cobertura_dias} dias</b> de venda com <b>{pct(margem_compra * 100, 0)}</b> de margem a mais.
+    </p>
+    <div class="stat-grid">
+      <div class="stat">
+        <div class="label">Marcado para comprar</div>
+        <div class="value" style="color:var(--accent-strong)">{brl(total_verde)}</div>
+        <div class="delta flat">{n_verde} produtos em {len(compras_por_fornecedor)} fornecedores</div>
+      </div>
+      <div class="stat">
+        <div class="label">Já pedido</div>
+        <div class="value">{brl(total_roxo)}</div>
+        <div class="delta flat">{n_roxo} produtos {'aguardando chegar' if n_roxo else 'marcados até agora'}</div>
+      </div>
+      <div class="stat">
+        <div class="label">Crítico sem marcação</div>
+        <div class="value">{n_sem_marca}</div>
+        <div class="delta {'down' if n_sem_marca else 'up'}">{'produtos zerando sem decisão tomada' if n_sem_marca else 'todo crítico já foi decidido'}</div>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="panel">
+        <h3 class="panel-title">Quanto vai para cada fornecedor</h3>
+        <div class="panel-sub">Somando só as linhas verdes · use antes de ligar para fechar o pedido</div>
+        <div class="table-scroll"><table>
+          <thead><tr><th>Fornecedor</th><th class="num">Produtos</th><th class="num">Unidades</th><th class="num">Críticos</th><th class="num">Total</th></tr></thead>
+          <tbody>{compras_forn_rows}</tbody>
+        </table></div>
+      </div>
+      <div class="panel">
+        <h3 class="panel-title">Peso de cada fornecedor na compra</h3>
+        <div class="panel-sub">Maiores valores entre os marcados de verde</div>
+        <div class="hbar-list">{compras_forn_hbar}</div>
+      </div>
+    </div>
+    <div class="panel" style="margin-top:20px;">
+      <h3 class="panel-title">Verde — vou comprar</h3>
+      <div class="panel-sub">{n_verde} produto(s) · {brl(total_verde)} · ordenado por fornecedor</div>
+      <div class="table-scroll" style="max-height:440px;"><table>
+        <thead><tr><th>Produto</th><th>Fornecedor</th><th class="num">Status</th><th class="num">Qtd</th><th class="num">Custo unit.</th><th class="num">Total</th></tr></thead>
+        <tbody>{verdes_rows}</tbody>
+      </table></div>
+    </div>
+    <div class="panel" style="margin-top:20px;">
+      <h3 class="panel-title">Roxo — já pedi</h3>
+      <div class="panel-sub">{n_roxo} produto(s) · {brl(total_roxo)} · some daqui quando você tirar a cor</div>
+      <div class="table-scroll" style="max-height:360px;"><table>
+        <thead><tr><th>Produto</th><th>Fornecedor</th><th class="num">Status</th><th class="num">Qtd</th><th class="num">Custo unit.</th><th class="num">Total</th></tr></thead>
+        <tbody>{roxos_rows}</tbody>
+      </table></div>
+    </div>
+    <div class="panel" style="margin-top:20px;">
+      <h3 class="panel-title">Crítico e ainda sem cor</h3>
+      <div class="panel-sub">Estoque acabando e nenhuma decisão tomada — pinte ou ignore conscientemente</div>
+      <div class="table-scroll" style="max-height:360px;"><table>
+        <thead><tr><th>Produto</th><th>Fornecedor</th><th class="num">Status</th><th class="num">Qtd sugerida</th><th class="num">Custo unit.</th><th class="num">Total</th></tr></thead>
+        <tbody>{sem_marca_rows}</tbody>
+      </table></div>
+    </div>
+    <div class="insight">
+      <h3>Pontos importantes</h3>
+      <ul>
+        <li>{('Marcado para comprar: <b>' + brl(total_verde) + '</b> em ' + str(n_verde) + ' produtos. O maior pedido é <b>' + esc(maior_fornecedor["forn"]) + '</b>, com ' + brl(maior_fornecedor["valor"]) + ' em ' + str(maior_fornecedor["itens"]) + ' itens.') if maior_fornecedor else 'Nenhuma linha está pintada de verde — o painel não tem o que listar até você marcar o que vai comprar.'}</li>
+        <li>{('<b>' + str(n_sem_marca) + ' produto(s) em estado crítico</b> ainda não foram pintados, somando ' + brl(sum(i["valor"] for i in itens_sem_marca)) + ' se forem comprados na quantidade sugerida — são as decisões que faltam.') if n_sem_marca else 'Todo produto em estado crítico já está marcado de verde ou de roxo: nenhuma decisão pendente.'}</li>
+        <li>{('<b>' + str(n_roxo) + ' produto(s)</b> estão de roxo, ' + brl(total_roxo) + ' já pedidos. Quando a mercadoria chegar e o estoque for reexportado, tire a cor para eles saírem da lista.') if n_roxo else 'Nada marcado como já pedido no momento.'}</li>
+        <li>{('<b>' + str(n_sem_forn) + ' item(ns) verdes</b> não têm fornecedor no cadastro de estoque e aparecem agrupados como "' + SEM_FORNECEDOR + '" — preencher esse campo organiza o total por fornecedor.') if n_sem_forn else 'Todos os itens marcados têm fornecedor cadastrado, então o total por fornecedor está completo.'}</li>
+        <li>Tons lidos na planilha — {esc(tons_txt)}. A classificação é por matiz, então qualquer verde ou roxo da paleta do Excel funciona.</li>
+      </ul>
+    </div>
+  </section>
+"""
+
 FOOTER = f"""
 <footer>
   Painel gerado automaticamente a partir das planilhas do Google Drive.<br>
@@ -933,6 +1237,7 @@ html_out = f"""<meta charset="utf-8">
     <a href="#produtos">Produtos &amp; clientes</a>
     <a href="#estoque">Estoque &amp; compras</a>
     <a href="#financeiro">Financeiro</a>
+    <a href="#compras">Lista de compras</a>
   </div>
 </nav>
 
@@ -944,6 +1249,7 @@ html_out = f"""<meta charset="utf-8">
 {sec_produtos}
 {sec_estoque}
 {sec_financeiro}
+{sec_compras}
 </div>
 {FOOTER}
 <script>{SCRIPT}</script>
@@ -951,3 +1257,138 @@ html_out = f"""<meta charset="utf-8">
 
 OUT.write_text(html_out, encoding="utf-8")
 print(f"OK - {OUT} gerado com sucesso ({len(html_out):,} caracteres).")
+
+
+# ======================================================================
+#  LIMPEZA DA PLANILHA DE PLANEJAMENTO
+#
+#  Tira o que saiu de uso quando o controle virou a cor da linha: o bloco
+#  AGENDA DE COMPRAS (colunas R a X) e a aba PEDIDOS. Mexe no XML na unha
+#  em vez de usar o openpyxl porque reescrever o pacote inteiro apagaria
+#  os valores em cache das fórmulas, e é deles que o painel se alimenta.
+#  A coluna J e os controles em Z/AA não são tocados: são seus.
+# ======================================================================
+PLANEJ_XLSX = BASE / "PLANEJAMENTO DE COMPRAS - RESENHA BEER.xlsx"
+COLS_AGENDA_ANTIGAS = "R|S|T|U|V|W|X"
+
+
+def _arquivo_da_aba(partes, nome):
+    """Caminho do XML de uma aba, resolvido pelo nome (a ordem pode mudar)."""
+    wbx = partes["xl/workbook.xml"].decode("utf-8")
+    rid = re.search(rf'<sheet name="{re.escape(nome)}"[^>]*r:id="([^"]+)"', wbx).group(1)
+    rels = partes["xl/_rels/workbook.xml.rels"].decode("utf-8")
+    destino = re.search(rf'<Relationship Id="{rid}"[^>]*Target="([^"]+)"', rels).group(1)
+    return "xl/" + destino.lstrip("/")
+
+
+def _limpar_bloco_agenda(sheet):
+    """Remove as células, a mesclagem e as larguras das colunas R:X."""
+    ultima = max(int(n) for n in re.findall(r'<row r="(\d+)"', sheet))
+    sheet = re.sub(rf'<c r="(?:{COLS_AGENDA_ANTIGAS})\d+"(?:[^>]*/>|[^>]*>.*?</c>)',
+                   "", sheet, flags=re.S)
+    merge = re.search(r'<mergeCells count="(\d+)">', sheet)
+    if merge and '<mergeCell ref="S1:X1"/>' in sheet:
+        sheet = sheet.replace('<mergeCell ref="S1:X1"/>', "", 1)
+        sheet = sheet.replace(merge.group(0), f'<mergeCells count="{int(merge.group(1)) - 1}">', 1)
+    sheet = re.sub(r'<col min="(?:1[89]|2[0-4])" max="(?:1[89]|2[0-4])"[^>]*/>', "", sheet)
+    # o filtro volta a cobrir só as colunas de dados; Z/AA ficam de fora dele
+    sheet = re.sub(r'(<autoFilter ref=")A2:[A-Z]+\d+(")', rf"\g<1>A2:Q{ultima}\g<2>", sheet, count=1)
+    sheet = re.sub(r'<dimension ref="A1:[A-Z]+\d+"/>', f'<dimension ref="A1:AA{ultima}"/>',
+                   sheet, count=1)
+    return sheet
+
+
+def _remover_parte(partes, nomes, caminho):
+    """Tira um arquivo do pacote junto com o Override que o declara."""
+    ct = partes["[Content_Types].xml"].decode("utf-8")
+    partes["[Content_Types].xml"] = re.sub(
+        rf'<Override PartName="/{re.escape(caminho)}"[^>]*/>', "", ct).encode("utf-8")
+    return [n for n in nomes if n != caminho]
+
+
+def _remover_aba_pedidos(partes, nomes):
+    """Apaga a aba PEDIDOS do pacote: entrada no workbook, relacionamento,
+    declaração de tipo e o próprio XML da aba."""
+    wbx = partes["xl/workbook.xml"].decode("utf-8")
+    entrada = re.search(r'<sheet name="PEDIDOS"[^>]*/>', wbx)
+    if entrada is None:
+        return partes, nomes, "aba PEDIDOS ja havia sido removida"
+
+    posicao = re.findall(r'<sheet name="([^"]+)"', wbx).index("PEDIDOS")
+    rid = re.search(r'r:id="([^"]+)"', entrada.group(0)).group(1)
+    wbx = wbx.replace(entrada.group(0), "", 1)
+
+    # localSheetId é posicional: quem vinha depois da PEDIDOS anda uma casa
+    wbx = re.sub(r'localSheetId="(\d+)"',
+                 lambda m: f'localSheetId="{int(m.group(1)) - 1}"'
+                 if int(m.group(1)) > posicao else m.group(0), wbx)
+    partes["xl/workbook.xml"] = wbx.encode("utf-8")
+
+    rels = partes["xl/_rels/workbook.xml.rels"].decode("utf-8")
+    alvo = re.search(rf'<Relationship Id="{rid}"[^>]*/>', rels)
+    caminho = "xl/" + re.search(r'Target="([^"]+)"', alvo.group(0)).group(1).lstrip("/")
+    rels = rels.replace(alvo.group(0), "", 1)
+
+    # a cadeia de cálculo aponta para índices de aba; sem ela o Excel refaz
+    calc = re.search(r'<Relationship [^>]*calcChain[^>]*/>', rels)
+    if calc:
+        rels = rels.replace(calc.group(0), "", 1)
+        nomes = _remover_parte(partes, nomes, "xl/calcChain.xml")
+    partes["xl/_rels/workbook.xml.rels"] = rels.encode("utf-8")
+
+    nomes = _remover_parte(partes, nomes, caminho)
+    return partes, nomes, "aba PEDIDOS removida"
+
+
+def simplificar_planilha():
+    """Aplica a limpeza num temporário, confere e só então troca o original."""
+    import shutil
+    import zipfile
+
+    with zipfile.ZipFile(PLANEJ_XLSX) as z:
+        nomes = z.namelist()
+        partes = {n: z.read(n) for n in nomes}
+
+    arq_planej = _arquivo_da_aba(partes, "PLANEJAMENTO")  # resolve antes de mexer nos rels
+    partes[arq_planej] = _limpar_bloco_agenda(
+        partes[arq_planej].decode("utf-8")).encode("utf-8")
+    partes, nomes, recado = _remover_aba_pedidos(partes, nomes)
+
+    # o _FilterDatabase é o nome oculto que o Excel mantém para o autofiltro;
+    # tem de encolher junto, senão a planilha reabre com o filtro largo demais
+    wbx = partes["xl/workbook.xml"].decode("utf-8")
+    partes["xl/workbook.xml"] = re.sub(
+        r'(PLANEJAMENTO!\$A\$2:\$)[A-Z]+(\$\d+)', r"\g<1>Q\g<2>", wbx).encode("utf-8")
+
+    tmp = PLANEJ_XLSX.with_name("~limpeza-" + PLANEJ_XLSX.name)
+    with zipfile.ZipFile(tmp, "w", zipfile.ZIP_DEFLATED) as z:
+        for n in nomes:
+            z.writestr(n, partes[n])
+    try:
+        # o with fecha o arquivo: no Windows um handle aberto impede a troca
+        with pd.ExcelFile(tmp) as planilha:
+            conf = pd.read_excel(planilha, sheet_name="PLANEJAMENTO", header=1)
+            abas = list(planilha.sheet_names)
+        if conf["Média de vendas diária"].notna().sum() == 0:
+            raise RuntimeError("os valores em cache das fórmulas se perderam")
+        sobrando = [c for c in ("Situação", "Melhor dia de compra", "Vencimento previsto")
+                    if c in conf.columns]
+        if sobrando:
+            raise RuntimeError(f"as colunas da agenda continuam na planilha: {sobrando}")
+        if "PEDIDOS" in abas:
+            raise RuntimeError("a aba PEDIDOS continua no arquivo")
+        shutil.move(str(tmp), str(PLANEJ_XLSX))
+    except PermissionError:
+        tmp.unlink(missing_ok=True)
+        raise RuntimeError("a planilha esta aberta no Excel - feche e rode de novo "
+                           "(o arquivo original nao foi alterado)") from None
+    except Exception:
+        tmp.unlink(missing_ok=True)
+        raise
+    return f"{recado}; bloco da agenda retirado das colunas R a X"
+
+
+try:
+    print(f"OK - planilha simplificada: {simplificar_planilha()}")
+except Exception as _e:
+    print(f"AVISO - planilha nao foi simplificada ({type(_e).__name__}: {_e})")
