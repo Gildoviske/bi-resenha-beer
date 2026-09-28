@@ -90,7 +90,6 @@ section.block:last-of-type{border-bottom:none;}
 .bar-pair .bar{width:13px; border-radius:3px 3px 0 0; position:relative; cursor:default;}
 .bar.b25{background:var(--accent);} .bar.b26{background:var(--series-b);}
 .bar[data-tip]:hover::after, .hbar[data-tip]:hover::after, .col-bar[data-tip]:hover::after,
-.wk-seg[data-tip]:hover::after{
   content:attr(data-tip); position:absolute; bottom:calc(100% + 6px); left:50%; transform:translateX(-50%);
   background:var(--ink-900); color:#F3E9DA; font-size:0.72rem; font-weight:600; padding:4px 8px; border-radius:6px;
   white-space:nowrap; z-index:5; box-shadow:var(--shadow); font-variant-numeric:tabular-nums;
@@ -101,21 +100,6 @@ section.block:last-of-type{border-bottom:none;}
 .legend i{width:10px; height:10px; border-radius:3px; display:inline-block;}
 /* sem isto, uma tabela larga estica a coluna do grid e vaza a página */
 .grid-2>*, .grid-3>*, .two-col>*{min-width:0;}
-.wk-wrap{position:relative; min-width:462px;}
-.wk-chart{display:flex; align-items:flex-end; gap:8px; height:180px;}
-.wk-col{flex:1; display:flex; flex-direction:column; justify-content:flex-end; height:100%;}
-.wk-stack{display:flex; flex-direction:column; justify-content:flex-end; width:100%; max-width:46px; margin:0 auto; height:100%;}
-.wk-seg{width:100%; position:relative; cursor:default;}
-.wk-seg.novo{background:var(--series-b);}
-.wk-seg.base{background:var(--accent);}
-.wk-seg.topo{border-radius:4px 4px 0 0;}
-.wk-foot{display:flex; gap:8px; margin-top:9px;}
-.wk-cell{flex:1; text-align:center;}
-.wk-label{font-size:0.64rem; color:var(--text-muted); font-weight:600; white-space:nowrap;}
-.wk-label.atual{color:var(--accent-strong);}
-.wk-val{font-size:0.64rem; color:var(--text-secondary); font-weight:700; font-variant-numeric:tabular-nums; white-space:nowrap; margin-top:2px;}
-.wk-ref{position:absolute; left:0; right:0; border-top:1px dashed var(--critical); pointer-events:none;}
-.wk-ref span{position:absolute; right:0; top:-15px; font-size:0.62rem; color:var(--critical); font-weight:700; background:var(--card); padding:0 5px;}
 .hour-chart{display:flex; align-items:flex-end; gap:3px; height:170px; padding-top:8px;}
 .hour-col{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; position:relative;}
 .col-bar{width:100%; max-width:22px; border-radius:3px 3px 0 0; background:var(--track); position:relative;}
@@ -163,7 +147,7 @@ footer a{color:var(--text-muted);}
     <p class="hero-sub">Consolidado das planilhas operacionais do bar — faturamento, margem, estoque, compras, clientes e contas a pagar — organizado em seções com os pontos que pedem atenção agora.</p>
     <div class="hero-meta">
       <span>Período: <strong>Jan/2025 – Ago/2026 fechado, Set/2026 em andamento</strong></span>
-      <span>Atualizado em <strong>15/09/2026 às 10:31</strong></span>
+      <span>Atualizado em <strong>28/09/2026 às 11:43</strong></span>
       <span>Fonte: exportações do sistema de gestão do bar (Google Drive)</span>
     </div>
   </div>
@@ -178,7 +162,7 @@ footer a{color:var(--text-muted);}
     <a href="#produtos">Produtos &amp; clientes</a>
     <a href="#estoque">Estoque &amp; compras</a>
     <a href="#financeiro">Financeiro</a>
-    <a href="#agenda">Agenda de compras</a>
+    <a href="#compras">Lista de compras</a>
   </div>
 </nav>
 
@@ -445,7 +429,7 @@ footer a{color:var(--text-muted);}
       <ul>
         <li>O produto mais vendido é <b>ANTARCTICA BOA 350ML</b>, com 708 unidades no período do relatório.</li>
         <li>Os <b>10 clientes do topo do ranking respondem por 65,1%</b> de todo o valor de compras rastreado — um programa simples de fidelidade para esse grupo protege receita concentrada.</li>
-        <li><b>IMPÉRIO 350ML</b> está ao mesmo tempo entre os mais vendidos e em situação crítica de estoque — priorizar essa(s) compra(s) primeiro.</li>
+        <li><b>ANTARCTICA BOA 1L, ANTARCTICA BOA 350ML, BRAHMA 350ML</b> estão ao mesmo tempo entre os mais vendidos e em situação crítica de estoque — priorizar essa(s) compra(s) primeiro.</li>
         <li>O fiado em aberto soma <b>R$ 1.495,70</b> em 20 cliente(s); <b>FABRICIO OLIVEIRA</b> concentra o maior saldo devedor (R$ 272,20).</li>
       </ul>
     </div>
@@ -467,7 +451,7 @@ footer a{color:var(--text-muted);}
       </div>
       <div class="stat">
         <div class="label">Itens em situação crítica de compra</div>
-        <div class="value">32</div>
+        <div class="value">41</div>
         <div class="delta down">precisam de reposição urgente</div>
       </div>
     </div>
@@ -484,29 +468,29 @@ footer a{color:var(--text-muted);}
       </div>
       <div class="panel">
         <h3 class="panel-title">Status do planejamento de compras</h3>
-        <div class="panel-sub">209 produtos analisados por giro dos últimos 30 dias</div>
+        <div class="panel-sub">212 produtos analisados por giro dos últimos 30 dias</div>
         <div class="chip-row">
-          <span class="chip critical"><span class="dot"></span>Crítico · 32</span>
+          <span class="chip critical"><span class="dot"></span>Crítico · 41</span>
           <span class="chip warning"><span class="dot"></span>Atenção · 20</span>
-          <span class="chip good"><span class="dot"></span>OK · 36</span>
-          <span class="chip neutral"><span class="dot"></span>Excesso · 74</span>
-          <span class="chip neutral"><span class="dot"></span>Sem giro · 47</span>
+          <span class="chip good"><span class="dot"></span>OK · 34</span>
+          <span class="chip neutral"><span class="dot"></span>Excesso · 84</span>
+          <span class="chip neutral"><span class="dot"></span>Sem giro · 33</span>
         </div>
         <div class="panel-sub" style="margin-top:16px; margin-bottom:8px;">Exemplos de itens críticos (comprar com urgência)</div>
-        <div class="table-scroll"><table><tbody><tr><td>BATOM CHOCOLATE PRETO</td></tr>
-<tr><td>BOLINHO DE CHOCOLATE BAUDUCCO</td></tr>
-<tr><td>CABARÉ ICE FRUTAS VERMELHAS 275ML</td></tr>
-<tr><td>CABARÉ ICE LIMÃO 275ML</td></tr>
+        <div class="table-scroll"><table><tbody><tr><td>ACHOCOLATADO TODDY 370G</td></tr>
+<tr><td>BOLO DE POTE - SABORES DIVERSOS</td></tr>
 <tr><td>CARVÃO 7KG</td></tr>
-<tr><td>CHOPP DE VINHO 600ML</td></tr></tbody></table></div>
+<tr><td>CHOPP DE VINHO 600ML</td></tr>
+<tr><td>PACOTE BATATINHAS</td></tr>
+<tr><td>PÃO DE MEL SABORES</td></tr></tbody></table></div>
       </div>
     </div>
     <div class="insight">
       <h3>Pontos importantes</h3>
       <ul>
-        <li>Apenas <b>17,2%</b> dos produtos estão em status "OK" de estoque — o grosso está em <b>excesso (35,4%)</b>, <b>sem giro (22,5%)</b> ou <b>crítico (15,3%)</b>.</li>
-        <li><b>IMPÉRIO 350ML</b> combina alta venda com ruptura de estoque — é a prioridade de compra.</li>
-        <li>Os 47 itens "sem giro" são candidatos naturais a saírem do cardápio/prateleira, liberando espaço e capital.</li>
+        <li>Apenas <b>16,0%</b> dos produtos estão em status "OK" de estoque — o grosso está em <b>excesso (39,6%)</b>, <b>sem giro (15,6%)</b> ou <b>crítico (19,3%)</b>.</li>
+        <li><b>ANTARCTICA BOA 1L, ANTARCTICA BOA 350ML, BRAHMA 350ML</b> combinam alta venda com ruptura de estoque — são a prioridade de compra.</li>
+        <li>Os 33 itens "sem giro" são candidatos naturais a saírem do cardápio/prateleira, liberando espaço e capital.</li>
       </ul>
     </div>
   </section>
@@ -575,165 +559,170 @@ footer a{color:var(--text-muted);}
   </section>
 
 
-  <section class="block" id="agenda">
-    <div class="block-head"><h2>Agenda de compras — quando comprar cada produto</h2><span class="block-num">08 / 08</span></div>
+  <section class="block" id="compras">
+    <div class="block-head"><h2>Lista de compras — o que está marcado na planilha</h2><span class="block-num">08 / 08</span></div>
     <p class="panel-sub" style="margin:-6px 0 22px;">
-      Toda compra vira uma conta a pagar depois do prazo do fornecedor. O plano abaixo escolhe,
-      para cada pedido, o dia que joga o vencimento para a semana mais folgada — respeitando
-      quantos dias de estoque ainda restam de cada item. Prazos medidos em pedidos já
-      registrados na aba PEDIDOS valem mais que a estimativa tirada das contas a pagar.
-      As quantidades vêm da planilha de planejamento, hoje ajustada para cobrir
-      <b>15 dias</b> de venda (seletor na célula AA1 da aba PLANEJAMENTO).
+      O controle é a cor da linha na aba PLANEJAMENTO: <b>verde</b> para o que você vai comprar,
+      <b>roxo</b> para o que já pediu. As quantidades saem da própria planilha, hoje ajustada
+      para cobrir <b>15 dias</b> de venda com <b>20%</b> de margem a mais.
     </p>
     <div class="stat-grid">
       <div class="stat">
-        <div class="label">Reposição a comprar</div>
-        <div class="value">R$ 3.086,71</div>
-        <div class="delta flat">42 itens em 15 pedidos</div>
+        <div class="label">Marcado para comprar</div>
+        <div class="value" style="color:var(--accent-strong)">R$ 5.150,58</div>
+        <div class="delta flat">69 produtos em 13 fornecedores</div>
       </div>
       <div class="stat">
-        <div class="label">Pior semana comprando tudo hoje</div>
-        <div class="value">R$ 2.922,40</div>
-        <div class="delta down">vencimentos empilhados numa semana só</div>
+        <div class="label">Já pedido</div>
+        <div class="value">R$ 0,00</div>
+        <div class="delta flat">0 produtos marcados até agora</div>
       </div>
       <div class="stat">
-        <div class="label">Pior semana seguindo a agenda</div>
-        <div class="value" style="color:var(--accent-strong)">R$ 2.922,40</div>
-        <div class="delta flat">já estava distribuído</div>
+        <div class="label">Crítico sem marcação</div>
+        <div class="value">8</div>
+        <div class="delta down">produtos zerando sem decisão tomada</div>
       </div>
     </div>
     <div class="grid-2">
       <div class="panel">
-        <h3 class="panel-title">Contas a pagar por semana, depois de distribuir as compras</h3>
-        <div class="panel-sub">Âmbar = já comprometido (contas lançadas + fixas previstas) · verde = compras sugeridas</div>
-        <div class="chart-scroll"><div class="wk-wrap">
-          <div class="wk-chart"><div class="wk-col"><div class="wk-stack"><div class="topo wk-seg novo" style="height:13.8%" data-tip="Compras sugeridas: R$ 464,88"></div><div class="wk-seg base" style="height:20.2%" data-tip="Já comprometido: R$ 678,12"></div></div></div>
-<div class="wk-col"><div class="wk-stack"><div class="topo wk-seg novo" style="height:64.4%" data-tip="Compras sugeridas: R$ 2.163,69"></div><div class="wk-seg base" style="height:22.6%" data-tip="Já comprometido: R$ 758,71"></div></div></div>
-<div class="wk-col"><div class="wk-stack"><div class="topo wk-seg novo" style="height:1.6%" data-tip="Compras sugeridas: R$ 52,84"></div><div class="wk-seg base" style="height:67.3%" data-tip="Já comprometido: R$ 2.260,15"></div></div></div>
-<div class="wk-col"><div class="wk-stack"><div class="topo wk-seg novo" style="height:12.1%" data-tip="Compras sugeridas: R$ 405,30"></div><div class="wk-seg base" style="height:55.0%" data-tip="Já comprometido: R$ 1.849,27"></div></div></div>
-<div class="wk-col"><div class="wk-stack"><div class="topo wk-seg base" style="height:0%" data-tip="semana sem contas"></div></div></div>
-<div class="wk-col"><div class="wk-stack"><div class="topo wk-seg base" style="height:3.0%" data-tip="Já comprometido: R$ 100,12"></div></div></div></div>
-          <div class="wk-ref" style="top:51px"><span>mediana histórica</span></div>
-          <div class="wk-foot"><div class="wk-cell"><div class="wk-label atual">14/09–20/09</div><div class="wk-val">R$ 1.143,00</div></div>
-<div class="wk-cell"><div class="wk-label">21/09–27/09</div><div class="wk-val">R$ 2.922,40</div></div>
-<div class="wk-cell"><div class="wk-label">28/09–04/10</div><div class="wk-val">R$ 2.312,99</div></div>
-<div class="wk-cell"><div class="wk-label">05/10–11/10</div><div class="wk-val">R$ 2.254,57</div></div>
-<div class="wk-cell"><div class="wk-label">12/10–18/10</div><div class="wk-val">R$ 0,00</div></div>
-<div class="wk-cell"><div class="wk-label">19/10–25/10</div><div class="wk-val">R$ 100,12</div></div></div>
-        </div></div>
-        <div class="legend">
-          <span><i style="background:var(--accent)"></i>Já comprometido</span>
-          <span><i style="background:var(--series-b)"></i>Compras sugeridas</span>
-        </div>
+        <h3 class="panel-title">Quanto vai para cada fornecedor</h3>
+        <div class="panel-sub">Somando só as linhas verdes · use antes de ligar para fechar o pedido</div>
+        <div class="table-scroll"><table>
+          <thead><tr><th>Fornecedor</th><th class="num">Produtos</th><th class="num">Unidades</th><th class="num">Críticos</th><th class="num">Total</th></tr></thead>
+          <tbody><tr><td class="strong">AMBEV S.A</td><td class="num">7</td><td class="num">770</td><td class="num">6</td><td class="num strong">R$ 2.685,26</td></tr>
+<tr><td class="strong">SPAL INDÚSTRIA COCA-COLA</td><td class="num">18</td><td class="num">179</td><td class="num">8</td><td class="num strong">R$ 744,53</td></tr>
+<tr><td class="strong">L&amp;M CIGARROS</td><td class="num">9</td><td class="num">81</td><td class="num">4</td><td class="num strong">R$ 560,78</td></tr>
+<tr><td class="strong">BVOL DISTRIBUIDORA ATACADO E VAREJO LTDA</td><td class="num">2</td><td class="num">14</td><td class="num">1</td><td class="num strong">R$ 294,00</td></tr>
+<tr><td class="strong">ADRIANO ROCHA DISTRIBUIDORA</td><td class="num">13</td><td class="num">111</td><td class="num">5</td><td class="num strong">R$ 188,95</td></tr>
+<tr><td class="strong">CASA DA CONTI LTDA</td><td class="num">2</td><td class="num">30</td><td class="num">1</td><td class="num strong">R$ 168,72</td></tr>
+<tr><td class="strong">LINCE DISTRIBUIDORA DE BEBIDAS</td><td class="num">2</td><td class="num">30</td><td class="num">0</td><td class="num strong">R$ 140,70</td></tr>
+<tr><td class="strong">Sem fornecedor no cadastro</td><td class="num">7</td><td class="num">16</td><td class="num">4</td><td class="num strong">R$ 115,88</td></tr>
+<tr><td class="strong">PEPSICO DO BRASIL LTDA</td><td class="num">4</td><td class="num">15</td><td class="num">2</td><td class="num strong">R$ 107,16</td></tr>
+<tr><td class="strong">GRUPO PETRÓPOLIS</td><td class="num">1</td><td class="num">12</td><td class="num">1</td><td class="num strong">R$ 75,60</td></tr>
+<tr><td class="strong">ALINE CARLA MATIAS SILVA</td><td class="num">1</td><td class="num">6</td><td class="num">0</td><td class="num strong">R$ 42,00</td></tr>
+<tr><td class="strong">BAURU DISTRIBUIDORA DE BEBIDAS LTDA</td><td class="num">2</td><td class="num">6</td><td class="num">1</td><td class="num strong">R$ 22,50</td></tr>
+<tr><td class="strong">SOLFARMA</td><td class="num">1</td><td class="num">1</td><td class="num">0</td><td class="num strong">R$ 4,50</td></tr></tbody>
+        </table></div>
       </div>
       <div class="panel">
-        <h3 class="panel-title">Fornecedores que mais dão prazo</h3>
-        <div class="panel-sub">Dias entre a compra e o vencimento — quanto maior, mais folga de caixa. O ✓ marca prazo combinado ou medido em pedido real; sem marca é estimativa do histórico</div>
-        <div class="hbar-list"><div class="hbar-row"><span class="name">ADRIANO ROCHA DISTRIBUIDORA ✓</span><div class="hbar-track"><div class="hbar alt" style="width:100.0%"></div></div><span class="val">21 dias</span></div>
-<div class="hbar-row"><span class="name">SOUZA CRUZ LTDA</span><div class="hbar-track"><div class="hbar alt" style="width:90.5%"></div></div><span class="val">19 dias</span></div>
-<div class="hbar-row"><span class="name">AMBEV S.A ✓</span><div class="hbar-track"><div class="hbar alt" style="width:76.2%"></div></div><span class="val">16 dias</span></div>
-<div class="hbar-row"><span class="name">BVOL DISTRIBUIDORA ATACADO E VAREJO LTDA</span><div class="hbar-track"><div class="hbar alt" style="width:61.9%"></div></div><span class="val">13 dias</span></div>
-<div class="hbar-row"><span class="name">SOLFARMA</span><div class="hbar-track"><div class="hbar alt" style="width:57.1%"></div></div><span class="val">12 dias</span></div></div>
-        <div class="panel-sub" style="margin-top:18px;">
-          Concentrar as compras grandes nesses fornecedores empurra o pagamento para mais
-          longe e abre espaço nas semanas apertadas. A mediana histórica de pagamentos é
-          de <b>R$ 2.399,62</b> por semana — é a régua usada para dizer se uma
-          semana está pesada.
-        </div>
+        <h3 class="panel-title">Peso de cada fornecedor na compra</h3>
+        <div class="panel-sub">Maiores valores entre os marcados de verde</div>
+        <div class="hbar-list"><div class="hbar-row"><span class="name">AMBEV S.A</span><div class="hbar-track"><div class="hbar" style="width:100.0%"></div></div><span class="val">R$ 2.685,26</span></div>
+<div class="hbar-row"><span class="name">SPAL INDÚSTRIA COCA-COLA</span><div class="hbar-track"><div class="hbar" style="width:27.7%"></div></div><span class="val">R$ 744,53</span></div>
+<div class="hbar-row"><span class="name">L&amp;M CIGARROS</span><div class="hbar-track"><div class="hbar" style="width:20.9%"></div></div><span class="val">R$ 560,78</span></div>
+<div class="hbar-row"><span class="name">BVOL DISTRIBUIDORA ATACADO E VAREJO LTDA</span><div class="hbar-track"><div class="hbar" style="width:10.9%"></div></div><span class="val">R$ 294,00</span></div>
+<div class="hbar-row"><span class="name">ADRIANO ROCHA DISTRIBUIDORA</span><div class="hbar-track"><div class="hbar" style="width:7.0%"></div></div><span class="val">R$ 188,95</span></div>
+<div class="hbar-row"><span class="name">CASA DA CONTI LTDA</span><div class="hbar-track"><div class="hbar" style="width:6.3%"></div></div><span class="val">R$ 168,72</span></div>
+<div class="hbar-row"><span class="name">LINCE DISTRIBUIDORA DE BEBIDAS</span><div class="hbar-track"><div class="hbar" style="width:5.2%"></div></div><span class="val">R$ 140,70</span></div></div>
       </div>
     </div>
     <div class="panel" style="margin-top:20px;">
-      <h3 class="panel-title">Pedidos com pagamento pendente</h3>
-      <div class="panel-sub">2 pedido(s) colocado(s) e ainda não pagos · R$ 2.144,70 comprometido, 1 com valor firme (1 por boleto lançado) · 0 já entregue(s) · 10 produto(s) fora da lista de compras por ainda não terem chegado</div>
-      <div class="table-scroll"><table>
-        <thead><tr><th>Nº do pedido</th><th>Fornecedor</th><th>Itens</th><th class="num">Valor</th><th class="num">Origem</th><th>Feito em</th><th>Entrega prevista</th><th class="num">Entregue em</th><th>Pagamento</th><th>Semana do pagamento</th></tr></thead>
-        <tbody><tr><td class="strong">2</td><td>SPAL INDÚSTRIA COCA-COLA</td><td>ÁGUA SEM GÁS 500ML, COCA COLA 600ML ORIGINAL, MONSTER ORIGINAL 473ML, TRIDENT SABOR MELANCIA, COCA-COLA 200ML ORIGINAL, COCA-COLA 200ML ZERO, FANTA LARANJA 2L, FANTA LARANJA 350ML, MONSTER MANGOLOCO 473ML, MONSTER ORIGINAL ZERO 473ML, SPRITE 2L, SPRITE 2L SEM AÇUCAR, COCA-COLA 2L ORIGINAL, COCA-COLA 2L SEM AÇUCAR, COCA-COLA RETORNÁVEL 2L ZERO</td><td class="num strong">R$ 513,55</td><td class="num"><span class="tag muted">estimado</span></td><td>11/09/2026</td><td>12/09/2026</td><td class="num"><span class="tag mid">aguardando</span></td><td class="strong">21/09/2026</td><td>21/09–27/09</td></tr>
-<tr><td class="strong">9340977253</td><td>AMBEV S.A</td><td>ANTARCTICA BOA 1L, ANTARCTICA BOA 350ML, BRAHMA 350ML, CERVEJA BUDWEISER 350ML, PINGA 51 965ML</td><td class="num strong">R$ 1.631,15</td><td class="num"><span class="tag high">boleto lançado</span></td><td>11/09/2026</td><td>14/09/2026</td><td class="num"><span class="tag mid">aguardando</span></td><td class="strong">28/09/2026</td><td>28/09–04/10</td></tr></tbody>
+      <h3 class="panel-title">Verde — vou comprar</h3>
+      <div class="panel-sub">69 produto(s) · R$ 5.150,58 · ordenado por fornecedor</div>
+      <div class="table-scroll" style="max-height:440px;"><table>
+        <thead><tr><th>Produto</th><th>Fornecedor</th><th class="num">Status</th><th class="num">Qtd</th><th class="num">Custo unit.</th><th class="num">Total</th></tr></thead>
+        <tbody><tr><td>CHOCOLATE KIT KAT</td><td>ADRIANO ROCHA DISTRIBUIDORA</td><td class="num"><span class="tag low">CRÍTICO</span></td><td class="num">21</td><td class="num">R$ 2,39</td><td class="num strong">R$ 50,19</td></tr>
+<tr><td>QUEIJO NOZÃO</td><td>ADRIANO ROCHA DISTRIBUIDORA</td><td class="num"><span class="tag low">CRÍTICO</span></td><td class="num">26</td><td class="num">R$ 1,66</td><td class="num strong">R$ 43,16</td></tr>
+<tr><td>BATOM CHOCOLATE PRETO</td><td>ADRIANO ROCHA DISTRIBUIDORA</td><td class="num"><span class="tag muted">SEM GIRO</span></td><td class="num">16</td><td class="num">R$ 1,98</td><td class="num strong">R$ 31,68</td></tr>
+<tr><td>MOINHO REAL 350ML</td><td>ADRIANO ROCHA DISTRIBUIDORA</td><td class="num"><span class="tag mid">ATENÇÃO</span></td><td class="num">15</td><td class="num">R$ 1,39</td><td class="num strong">R$ 20,85</td></tr>
+<tr><td>BOMBOM OURO BRANCO</td><td>ADRIANO ROCHA DISTRIBUIDORA</td><td class="num"><span class="tag low">CRÍTICO</span></td><td class="num">11</td><td class="num">R$ 1,27</td><td class="num strong">R$ 13,97</td></tr>
+<tr><td>FINI DENTADURAS 15G</td><td>ADRIANO ROCHA DISTRIBUIDORA</td><td class="num"><span class="tag mid">ATENÇÃO</span></td><td class="num">12</td><td class="num">R$ 0,90</td><td class="num strong">R$ 10,80</td></tr>
+<tr><td>MONSTER MANGOLOCO 473ML</td><td>ADRIANO ROCHA DISTRIBUIDORA</td><td class="num"><span class="tag mid">ATENÇÃO</span></td><td class="num">6</td><td class="num">R$ 1,69</td><td class="num strong">R$ 10,14</td></tr>
+<tr><td>DOCE DE BATATA</td><td>ADRIANO ROCHA DISTRIBUIDORA</td><td class="num"><span class="tag mid">ATENÇÃO</span></td><td class="num">2</td><td class="num">R$ 1,89</td><td class="num strong">R$ 3,78</td></tr>
+<tr><td>CHOPP DE VINHO 600ML</td><td>ADRIANO ROCHA DISTRIBUIDORA</td><td class="num"><span class="tag low">CRÍTICO</span></td><td class="num">1</td><td class="num">R$ 2,29</td><td class="num strong">R$ 2,29</td></tr>
+<tr><td>BOLACHA PASSATEMPO SABOR CHOCOLATE</td><td>ADRIANO ROCHA DISTRIBUIDORA</td><td class="num"><span class="tag low">CRÍTICO</span></td><td class="num">1</td><td class="num">R$ 2,09</td><td class="num strong">R$ 2,09</td></tr>
+<tr><td>CHOCOLATE MORANGUETE</td><td>ADRIANO ROCHA DISTRIBUIDORA</td><td class="num"><span class="tag high">OK</span></td><td class="num">0</td><td class="num">R$ 3,50</td><td class="num strong">R$ 0,00</td></tr>
+<tr><td>CHOCOLATE SUFLAIR 130G</td><td>ADRIANO ROCHA DISTRIBUIDORA</td><td class="num"><span class="tag high">OK</span></td><td class="num">0</td><td class="num">R$ 0,63</td><td class="num strong">R$ 0,00</td></tr>
+<tr><td>CHOCOLATE TRENTO AVELÃ</td><td>ADRIANO ROCHA DISTRIBUIDORA</td><td class="num"><span class="tag muted">EXCESSO</span></td><td class="num">0</td><td class="num">R$ 5,69</td><td class="num strong">R$ 0,00</td></tr>
+<tr><td>CONE DOCE DE LEITE/CHOCOLATE</td><td>ALINE CARLA MATIAS SILVA</td><td class="num"><span class="tag mid">ATENÇÃO</span></td><td class="num">6</td><td class="num">R$ 7,00</td><td class="num strong">R$ 42,00</td></tr>
+<tr><td>ANTARCTICA BOA 350ML</td><td>AMBEV S.A</td><td class="num"><span class="tag low">CRÍTICO</span></td><td class="num">396</td><td class="num">R$ 3,25</td><td class="num strong">R$ 1.287,00</td></tr>
+<tr><td>BRAHMA 350ML</td><td>AMBEV S.A</td><td class="num"><span class="tag low">CRÍTICO</span></td><td class="num">264</td><td class="num">R$ 3,22</td><td class="num strong">R$ 850,08</td></tr>
+<tr><td>ANTARCTICA BOA 1L</td><td>AMBEV S.A</td><td class="num"><span class="tag low">CRÍTICO</span></td><td class="num">60</td><td class="num">R$ 6,79</td><td class="num strong">R$ 407,40</td></tr>
+<tr><td>PACOTE BATATINHAS</td><td>AMBEV S.A</td><td class="num"><span class="tag low">CRÍTICO</span></td><td class="num">15</td><td class="num">R$ 4,07</td><td class="num strong">R$ 61,05</td></tr>
+<tr><td>H2OH LIMONETO</td><td>AMBEV S.A</td><td class="num"><span class="tag low">CRÍTICO</span></td><td class="num">12</td><td class="num">R$ 3,00</td><td class="num strong">R$ 36,00</td></tr>
+<tr><td>HALLS SABOR MENTA</td><td>AMBEV S.A</td><td class="num"><span class="tag low">CRÍTICO</span></td><td class="num">21</td><td class="num">R$ 1,39</td><td class="num strong">R$ 29,19</td></tr>
+<tr><td>PAÇOCA</td><td>AMBEV S.A</td><td class="num"><span class="tag mid">ATENÇÃO</span></td><td class="num">2</td><td class="num">R$ 7,27</td><td class="num strong">R$ 14,54</td></tr>
+<tr><td>IMPÉRIO ULTRA LONG NECK 275ML</td><td>BAURU DISTRIBUIDORA DE BEBIDAS LTDA</td><td class="num"><span class="tag low">CRÍTICO</span></td><td class="num">6</td><td class="num">R$ 3,75</td><td class="num strong">R$ 22,50</td></tr>
+<tr><td>IMPÉRIO LAGER 330 ML</td><td>BAURU DISTRIBUIDORA DE BEBIDAS LTDA</td><td class="num"><span class="tag muted">EXCESSO</span></td><td class="num">0</td><td class="num">R$ 3,02</td><td class="num strong">R$ 0,00</td></tr>
+<tr><td>PÃO DE MEL SABORES</td><td>BVOL DISTRIBUIDORA ATACADO E VAREJO LTDA</td><td class="num"><span class="tag low">CRÍTICO</span></td><td class="num">14</td><td class="num">R$ 21,00</td><td class="num strong">R$ 294,00</td></tr>
+<tr><td>PINGA 51 965ML</td><td>BVOL DISTRIBUIDORA ATACADO E VAREJO LTDA</td><td class="num"><span class="tag muted">SEM GIRO</span></td><td class="num">0</td><td class="num">R$ 19,50</td><td class="num strong">R$ 0,00</td></tr>
+<tr><td>CORONA EXTRA LONG NECK 330ML</td><td>CASA DA CONTI LTDA</td><td class="num"><span class="tag low">CRÍTICO</span></td><td class="num">24</td><td class="num">R$ 6,56</td><td class="num strong">R$ 157,44</td></tr>
+<tr><td>CONTI COLA 2L</td><td>CASA DA CONTI LTDA</td><td class="num"><span class="tag mid">ATENÇÃO</span></td><td class="num">6</td><td class="num">R$ 1,88</td><td class="num strong">R$ 11,28</td></tr>
+<tr><td>CABARÉ ICE LIMÃO 275ML</td><td>GRUPO PETRÓPOLIS</td><td class="num"><span class="tag low">CRÍTICO</span></td><td class="num">12</td><td class="num">R$ 6,30</td><td class="num strong">R$ 75,60</td></tr>
+<tr><td>TAUBAIANA GUARANÁ 2L</td><td>L&amp;M CIGARROS</td><td class="num"><span class="tag low">CRÍTICO</span></td><td class="num">18</td><td class="num">R$ 10,83</td><td class="num strong">R$ 194,94</td></tr>
+<tr><td>CIGARRO CHESTERFIELD TERRAS BRASILEIRAS AZUL</td><td>L&amp;M CIGARROS</td><td class="num"><span class="tag low">CRÍTICO</span></td><td class="num">10</td><td class="num">R$ 12,50</td><td class="num strong">R$ 125,00</td></tr>
+<tr><td>CIGARRO DUNHILL FREE VERMELHO</td><td>L&amp;M CIGARROS</td><td class="num"><span class="tag mid">ATENÇÃO</span></td><td class="num">10</td><td class="num">R$ 11,10</td><td class="num strong">R$ 111,00</td></tr>
+<tr><td>CIGARRO ROTHMANS AZUL</td><td>L&amp;M CIGARROS</td><td class="num"><span class="tag mid">ATENÇÃO</span></td><td class="num">30</td><td class="num">R$ 3,50</td><td class="num strong">R$ 105,00</td></tr>
+<tr><td>TABACO AMSTERDAM</td><td>L&amp;M CIGARROS</td><td class="num"><span class="tag low">CRÍTICO</span></td><td class="num">6</td><td class="num">R$ 3,03</td><td class="num strong">R$ 18,18</td></tr>
+<tr><td>SPRITE 2L</td><td>L&amp;M CIGARROS</td><td class="num"><span class="tag mid">ATENÇÃO</span></td><td class="num">6</td><td class="num">R$ 0,96</td><td class="num strong">R$ 5,76</td></tr>
+<tr><td>LATA DE ATUM CRUSOE 170G</td><td>L&amp;M CIGARROS</td><td class="num"><span class="tag low">CRÍTICO</span></td><td class="num">1</td><td class="num">R$ 0,90</td><td class="num strong">R$ 0,90</td></tr>
+<tr><td>TAUBAIANA 600ML</td><td>L&amp;M CIGARROS</td><td class="num"><span class="tag muted">EXCESSO</span></td><td class="num">0</td><td class="num">R$ 11,00</td><td class="num strong">R$ 0,00</td></tr>
+<tr><td>SKOL 350ML</td><td>L&amp;M CIGARROS</td><td class="num"><span class="tag high">OK</span></td><td class="num">0</td><td class="num">R$ 3,52</td><td class="num strong">R$ 0,00</td></tr>
+<tr><td>IMPÉRIO 350ML</td><td>LINCE DISTRIBUIDORA DE BEBIDAS</td><td class="num"><span class="tag mid">ATENÇÃO</span></td><td class="num">30</td><td class="num">R$ 4,69</td><td class="num strong">R$ 140,70</td></tr>
+<tr><td>AMSTEL 350ML</td><td>LINCE DISTRIBUIDORA DE BEBIDAS</td><td class="num"><span class="tag high">OK</span></td><td class="num">0</td><td class="num">R$ 2,99</td><td class="num strong">R$ 0,00</td></tr>
+<tr><td>CERVEJA BUDWEISER 350ML</td><td>PEPSICO DO BRASIL LTDA</td><td class="num"><span class="tag low">CRÍTICO</span></td><td class="num">12</td><td class="num">R$ 7,80</td><td class="num strong">R$ 93,60</td></tr>
+<tr><td>SAL REFINADO CISNE 1KG</td><td>PEPSICO DO BRASIL LTDA</td><td class="num"><span class="tag muted">SEM GIRO</span></td><td class="num">1</td><td class="num">R$ 7,71</td><td class="num strong">R$ 7,71</td></tr>
+<tr><td>ENERGÉTICO 2L</td><td>PEPSICO DO BRASIL LTDA</td><td class="num"><span class="tag muted">SEM GIRO</span></td><td class="num">1</td><td class="num">R$ 3,63</td><td class="num strong">R$ 3,63</td></tr>
+<tr><td>TORRESMO</td><td>PEPSICO DO BRASIL LTDA</td><td class="num"><span class="tag low">CRÍTICO</span></td><td class="num">1</td><td class="num">R$ 2,22</td><td class="num strong">R$ 2,22</td></tr>
+<tr><td>GIN ORLOF 1L</td><td>SOLFARMA</td><td class="num"><span class="tag muted">SEM GIRO</span></td><td class="num">1</td><td class="num">R$ 4,50</td><td class="num strong">R$ 4,50</td></tr>
+<tr><td>CONE DE CHOCOLATE SABORES DIVERSOS</td><td>SPAL INDÚSTRIA COCA-COLA</td><td class="num"><span class="tag low">CRÍTICO</span></td><td class="num">40</td><td class="num">R$ 4,43</td><td class="num strong">R$ 177,20</td></tr>
+<tr><td>MONSTER ORIGINAL 473ML</td><td>SPAL INDÚSTRIA COCA-COLA</td><td class="num"><span class="tag low">CRÍTICO</span></td><td class="num">12</td><td class="num">R$ 8,32</td><td class="num strong">R$ 99,84</td></tr>
+<tr><td>SEDA PAPELITO  LONGA BRANCA</td><td>SPAL INDÚSTRIA COCA-COLA</td><td class="num"><span class="tag low">CRÍTICO</span></td><td class="num">24</td><td class="num">R$ 3,12</td><td class="num strong">R$ 74,88</td></tr>
+<tr><td>MONSTER ORIGINAL ZERO 473ML</td><td>SPAL INDÚSTRIA COCA-COLA</td><td class="num"><span class="tag low">CRÍTICO</span></td><td class="num">6</td><td class="num">R$ 8,32</td><td class="num strong">R$ 49,92</td></tr>
+<tr><td>MONSTER ULTRA 473ML</td><td>SPAL INDÚSTRIA COCA-COLA</td><td class="num"><span class="tag low">CRÍTICO</span></td><td class="num">6</td><td class="num">R$ 8,10</td><td class="num strong">R$ 48,60</td></tr>
+<tr><td>FANTA UVA 350ML</td><td>SPAL INDÚSTRIA COCA-COLA</td><td class="num"><span class="tag mid">ATENÇÃO</span></td><td class="num">6</td><td class="num">R$ 7,68</td><td class="num strong">R$ 46,08</td></tr>
+<tr><td>COCA-COLA 2L SEM AÇUCAR</td><td>SPAL INDÚSTRIA COCA-COLA</td><td class="num"><span class="tag mid">ATENÇÃO</span></td><td class="num">6</td><td class="num">R$ 7,47</td><td class="num strong">R$ 44,82</td></tr>
+<tr><td>COCA-COLA 2L ORIGINAL</td><td>SPAL INDÚSTRIA COCA-COLA</td><td class="num"><span class="tag low">CRÍTICO</span></td><td class="num">30</td><td class="num">R$ 1,46</td><td class="num strong">R$ 43,80</td></tr>
+<tr><td>COCA COLA 600ML ORIGINAL</td><td>SPAL INDÚSTRIA COCA-COLA</td><td class="num"><span class="tag mid">ATENÇÃO</span></td><td class="num">6</td><td class="num">R$ 5,62</td><td class="num strong">R$ 33,72</td></tr>
+<tr><td>COCA-COLA 200ML ORIGINAL</td><td>SPAL INDÚSTRIA COCA-COLA</td><td class="num"><span class="tag mid">ATENÇÃO</span></td><td class="num">12</td><td class="num">R$ 2,66</td><td class="num strong">R$ 31,92</td></tr>
+<tr><td>TABACO ACREMA BLEND</td><td>SPAL INDÚSTRIA COCA-COLA</td><td class="num"><span class="tag low">CRÍTICO</span></td><td class="num">10</td><td class="num">R$ 3,03</td><td class="num strong">R$ 30,30</td></tr>
+<tr><td>COCA-COLA RETORNÁVEL 2L ORIGINAL</td><td>SPAL INDÚSTRIA COCA-COLA</td><td class="num"><span class="tag mid">ATENÇÃO</span></td><td class="num">9</td><td class="num">R$ 3,01</td><td class="num strong">R$ 27,09</td></tr>
+<tr><td>DEL VALLE UVA 1L</td><td>SPAL INDÚSTRIA COCA-COLA</td><td class="num"><span class="tag low">CRÍTICO</span></td><td class="num">6</td><td class="num">R$ 3,27</td><td class="num strong">R$ 19,62</td></tr>
+<tr><td>SCHWEPPS CITRUS 350ML</td><td>SPAL INDÚSTRIA COCA-COLA</td><td class="num"><span class="tag mid">ATENÇÃO</span></td><td class="num">6</td><td class="num">R$ 2,79</td><td class="num strong">R$ 16,74</td></tr>
+<tr><td>DETERGENTE LIQUIDO</td><td>SPAL INDÚSTRIA COCA-COLA</td><td class="num"><span class="tag high">OK</span></td><td class="num">0</td><td class="num">R$ 4,72</td><td class="num strong">R$ 0,00</td></tr>
+<tr><td>WHISKEY BALLANTINES 750ML</td><td>SPAL INDÚSTRIA COCA-COLA</td><td class="num"><span class="tag muted">SEM GIRO</span></td><td class="num">0</td><td class="num">R$ 1,65</td><td class="num strong">R$ 0,00</td></tr>
+<tr><td>COCA-COLA 200ML ZERO</td><td>SPAL INDÚSTRIA COCA-COLA</td><td class="num"><span class="tag high">OK</span></td><td class="num">0</td><td class="num">R$ 1,46</td><td class="num strong">R$ 0,00</td></tr>
+<tr><td>COCA-COLA RETORNÁVEL 2L ZERO</td><td>SPAL INDÚSTRIA COCA-COLA</td><td class="num"><span class="tag high">OK</span></td><td class="num">0</td><td class="num">R$ 5,57</td><td class="num strong">R$ 0,00</td></tr>
+<tr><td>CARVÃO 7KG</td><td>Sem fornecedor no cadastro</td><td class="num"><span class="tag low">CRÍTICO</span></td><td class="num">5</td><td class="num">R$ 13,20</td><td class="num strong">R$ 66,00</td></tr>
+<tr><td>REFRIGERANTE FYS 350ML SABORES DIVERSOS</td><td>Sem fornecedor no cadastro</td><td class="num"><span class="tag low">CRÍTICO</span></td><td class="num">6</td><td class="num">R$ 3,98</td><td class="num strong">R$ 23,88</td></tr>
+<tr><td>WHISKEY WHITE HORSE 1L</td><td>Sem fornecedor no cadastro</td><td class="num"><span class="tag muted">SEM GIRO</span></td><td class="num">1</td><td class="num">R$ 12,79</td><td class="num strong">R$ 12,79</td></tr>
+<tr><td>ACHOCOLATADO TODDY 370G</td><td>Sem fornecedor no cadastro</td><td class="num"><span class="tag low">CRÍTICO</span></td><td class="num">1</td><td class="num">R$ 7,45</td><td class="num strong">R$ 7,45</td></tr>
+<tr><td>BOLO DE POTE - SABORES DIVERSOS</td><td>Sem fornecedor no cadastro</td><td class="num"><span class="tag low">CRÍTICO</span></td><td class="num">3</td><td class="num">R$ 1,92</td><td class="num strong">R$ 5,76</td></tr>
+<tr><td>ENERGÉTICO BALY 2L SABORES DIVERSOS</td><td>Sem fornecedor no cadastro</td><td class="num"><span class="tag muted">SEM GIRO</span></td><td class="num">0</td><td class="num">R$ 4,80</td><td class="num strong">R$ 0,00</td></tr>
+<tr><td>WHISKEY PASSAPORT 1L</td><td>Sem fornecedor no cadastro</td><td class="num"><span class="tag muted">SEM GIRO</span></td><td class="num">0</td><td class="num">R$ 5,90</td><td class="num strong">R$ 0,00</td></tr></tbody>
       </table></div>
     </div>
     <div class="panel" style="margin-top:20px;">
-      <h3 class="panel-title">Agenda por fornecedor</h3>
-      <div class="panel-sub">Um pedido por fornecedor · 6 de 15 vencem sozinhos no dia, sem dividir com outra conta</div>
-      <div class="table-scroll"><table>
-        <thead><tr><th>Comprar em</th><th>Fornecedor</th><th class="num">Itens</th><th class="num">Valor est.</th><th>Entrega prevista</th><th class="num">Prazo</th><th>Vence em</th><th class="num">Vencimento</th><th>Semana do vencimento</th></tr></thead>
-        <tbody><tr><td class="strong">hoje</td><td>L&amp;M CIGARROS</td><td class="num">11</td><td class="num">R$ 1.364,88</td><td>—</td><td class="num">7d</td><td>22/09/2026</td><td class="num"><span class="tag mid">divide o dia</span></td><td>21/09–27/09</td></tr>
-<tr><td class="strong">hoje</td><td>CASA DA CONTI LTDA</td><td class="num">3</td><td class="num">R$ 181,65</td><td>—</td><td class="num">7d</td><td>22/09/2026</td><td class="num"><span class="tag mid">divide o dia</span></td><td>21/09–27/09</td></tr>
-<tr><td class="strong">hoje</td><td>AMBEV S.A</td><td class="num">2</td><td class="num">R$ 52,84</td><td>Qui 17/09</td><td class="num">16d</td><td>01/10/2026</td><td class="num"><span class="tag high">sozinho</span></td><td>28/09–04/10</td></tr>
-<tr><td class="strong">hoje</td><td>Sem fornecedor no cadastro — SALGADINHOS</td><td class="num">1</td><td class="num">R$ 33,60</td><td>—</td><td class="num">0d</td><td>15/09/2026</td><td class="num"><span class="tag mid">divide o dia</span></td><td>14/09–20/09</td></tr>
-<tr><td class="strong">hoje</td><td>GRUPO PETRÓPOLIS</td><td class="num">2</td><td class="num">R$ 25,20</td><td>—</td><td class="num">5d</td><td>20/09/2026</td><td class="num"><span class="tag high">sozinho</span></td><td>14/09–20/09</td></tr>
-<tr><td class="strong">amanhã</td><td>SOUZA CRUZ LTDA</td><td class="num">1</td><td class="num">R$ 341,28</td><td>—</td><td class="num">19d</td><td>05/10/2026</td><td class="num"><span class="tag high">sozinho</span></td><td>05/10–11/10</td></tr>
-<tr><td class="strong">amanhã</td><td>Sem fornecedor no cadastro — MERCEARIA</td><td class="num">4</td><td class="num">R$ 223,52</td><td>—</td><td class="num">0d</td><td>16/09/2026</td><td class="num"><span class="tag mid">divide o dia</span></td><td>14/09–20/09</td></tr>
-<tr><td class="strong">amanhã</td><td>SPAL INDÚSTRIA COCA-COLA</td><td class="num">7</td><td class="num">R$ 218,20</td><td>Qui 17/09</td><td class="num">7d</td><td>23/09/2026</td><td class="num"><span class="tag high">sozinho</span></td><td>21/09–27/09</td></tr>
-<tr><td class="strong">amanhã</td><td>ADRIANO ROCHA DISTRIBUIDORA</td><td class="num">2</td><td class="num">R$ 64,02</td><td>—</td><td class="num">21d</td><td>07/10/2026</td><td class="num"><span class="tag high">sozinho</span></td><td>05/10–11/10</td></tr>
-<tr><td class="strong">amanhã</td><td>Sem fornecedor no cadastro — REFRIGERANTES</td><td class="num">1</td><td class="num">R$ 4,58</td><td>—</td><td class="num">0d</td><td>16/09/2026</td><td class="num"><span class="tag mid">divide o dia</span></td><td>14/09–20/09</td></tr>
-<tr><td class="strong">Qui 17/09</td><td>BAURU DISTRIBUIDORA DE BEBIDAS LTDA</td><td class="num">3</td><td class="num">R$ 230,96</td><td>—</td><td class="num">7d</td><td>24/09/2026</td><td class="num"><span class="tag mid">divide o dia</span></td><td>21/09–27/09</td></tr>
-<tr><td class="strong">Qui 17/09</td><td>ALINE CARLA MATIAS SILVA</td><td class="num">1</td><td class="num">R$ 168,00</td><td>—</td><td class="num">7d</td><td>24/09/2026</td><td class="num"><span class="tag mid">divide o dia</span></td><td>21/09–27/09</td></tr>
-<tr><td class="strong">Qui 17/09</td><td>Sem fornecedor no cadastro — DESTILADOS,VINHOS &amp; OUTRAS BEBIDAS</td><td class="num">2</td><td class="num">R$ 142,91</td><td>—</td><td class="num">0d</td><td>17/09/2026</td><td class="num"><span class="tag mid">divide o dia</span></td><td>14/09–20/09</td></tr>
-<tr><td class="strong">Qui 17/09</td><td>Sem fornecedor no cadastro — ENERGÉTICOS</td><td class="num">1</td><td class="num">R$ 9,99</td><td>—</td><td class="num">0d</td><td>17/09/2026</td><td class="num"><span class="tag mid">divide o dia</span></td><td>14/09–20/09</td></tr>
-<tr><td class="strong">Sáb 19/09</td><td>Sem fornecedor no cadastro — DOCES</td><td class="num">1</td><td class="num">R$ 25,08</td><td>—</td><td class="num">0d</td><td>19/09/2026</td><td class="num"><span class="tag high">sozinho</span></td><td>14/09–20/09</td></tr></tbody>
+      <h3 class="panel-title">Roxo — já pedi</h3>
+      <div class="panel-sub">0 produto(s) · R$ 0,00 · some daqui quando você tirar a cor</div>
+      <div class="table-scroll" style="max-height:360px;"><table>
+        <thead><tr><th>Produto</th><th>Fornecedor</th><th class="num">Status</th><th class="num">Qtd</th><th class="num">Custo unit.</th><th class="num">Total</th></tr></thead>
+        <tbody><tr><td colspan="6">Nenhuma linha pintada de roxo ainda.</td></tr></tbody>
       </table></div>
     </div>
     <div class="panel" style="margin-top:20px;">
-      <h3 class="panel-title">Melhor dia de compra, produto a produto</h3>
-      <div class="panel-sub">42 itens em status crítico ou de atenção · ordenado pela data de compra</div>
-      <div class="table-scroll" style="max-height:460px;"><table>
-        <thead><tr><th>Produto</th><th class="num">Status</th><th class="num">Qtd</th><th class="num">Valor est.</th><th>Fornecedor</th><th>Comprar em</th><th>Entrega prevista</th><th>Vence em</th></tr></thead>
-        <tbody><tr><td>CORONA EXTRA LONG NECK 330ML</td><td class="num"><span class="tag low">CRÍTICO</span></td><td class="num">6</td><td class="num">R$ 38,94</td><td>AMBEV S.A</td><td class="strong">hoje</td><td>Qui 17/09</td><td>01/10/2026</td></tr>
-<tr><td>HALLS SABOR MORANGO</td><td class="num"><span class="tag low">CRÍTICO</span></td><td class="num">10</td><td class="num">R$ 13,90</td><td>AMBEV S.A</td><td class="strong">hoje</td><td>Qui 17/09</td><td>01/10/2026</td></tr>
-<tr><td>TAUBAIANA GUARANÁ 2L</td><td class="num"><span class="tag low">CRÍTICO</span></td><td class="num">18</td><td class="num">R$ 70,38</td><td>CASA DA CONTI LTDA</td><td class="strong">hoje</td><td>—</td><td>22/09/2026</td></tr>
-<tr><td>CONTI COLA 2L</td><td class="num"><span class="tag mid">ATENÇÃO</span></td><td class="num">12</td><td class="num">R$ 64,44</td><td>CASA DA CONTI LTDA</td><td class="strong">hoje</td><td>—</td><td>22/09/2026</td></tr>
-<tr><td>BURGUESA 350ML</td><td class="num"><span class="tag mid">ATENÇÃO</span></td><td class="num">21</td><td class="num">R$ 46,83</td><td>CASA DA CONTI LTDA</td><td class="strong">hoje</td><td>—</td><td>22/09/2026</td></tr>
-<tr><td>CABARÉ ICE LIMÃO 275ML</td><td class="num"><span class="tag low">CRÍTICO</span></td><td class="num">3</td><td class="num">R$ 18,90</td><td>GRUPO PETRÓPOLIS</td><td class="strong">hoje</td><td>—</td><td>20/09/2026</td></tr>
-<tr><td>CABARÉ ICE FRUTAS VERMELHAS 275ML</td><td class="num"><span class="tag low">CRÍTICO</span></td><td class="num">1</td><td class="num">R$ 6,30</td><td>GRUPO PETRÓPOLIS</td><td class="strong">hoje</td><td>—</td><td>20/09/2026</td></tr>
-<tr><td>CIGARRO CHESTERFIELD ORIGINAL LABEL</td><td class="num"><span class="tag low">CRÍTICO</span></td><td class="num">20</td><td class="num">R$ 236,00</td><td>L&amp;M CIGARROS</td><td class="strong">hoje</td><td>—</td><td>22/09/2026</td></tr>
-<tr><td>CIGARRO CHESTERFIELD TERRAS BRASILEIRAS VERMELHO</td><td class="num"><span class="tag low">CRÍTICO</span></td><td class="num">20</td><td class="num">R$ 222,00</td><td>L&amp;M CIGARROS</td><td class="strong">hoje</td><td>—</td><td>22/09/2026</td></tr>
-<tr><td>CIGARRO EIGTH</td><td class="num"><span class="tag low">CRÍTICO</span></td><td class="num">30</td><td class="num">R$ 135,00</td><td>L&amp;M CIGARROS</td><td class="strong">hoje</td><td>—</td><td>22/09/2026</td></tr>
-<tr><td>TABACO AMSTERDAM</td><td class="num"><span class="tag low">CRÍTICO</span></td><td class="num">12</td><td class="num">R$ 129,96</td><td>L&amp;M CIGARROS</td><td class="strong">hoje</td><td>—</td><td>22/09/2026</td></tr>
-<tr><td>PITEIRA BEM BOLADO GIRLS IN GREEN</td><td class="num"><span class="tag low">CRÍTICO</span></td><td class="num">12</td><td class="num">R$ 69,96</td><td>L&amp;M CIGARROS</td><td class="strong">hoje</td><td>—</td><td>22/09/2026</td></tr>
-<tr><td>CIGARRO VILA RICA AZUL</td><td class="num"><span class="tag mid">ATENÇÃO</span></td><td class="num">50</td><td class="num">R$ 235,00</td><td>L&amp;M CIGARROS</td><td class="strong">hoje</td><td>—</td><td>22/09/2026</td></tr>
-<tr><td>CIGARRO LM</td><td class="num"><span class="tag mid">ATENÇÃO</span></td><td class="num">12</td><td class="num">R$ 123,00</td><td>L&amp;M CIGARROS</td><td class="strong">hoje</td><td>—</td><td>22/09/2026</td></tr>
-<tr><td>MALBORO RED SELECTION</td><td class="num"><span class="tag mid">ATENÇÃO</span></td><td class="num">6</td><td class="num">R$ 78,90</td><td>L&amp;M CIGARROS</td><td class="strong">hoje</td><td>—</td><td>22/09/2026</td></tr>
-<tr><td>FUMO ESPECIAL</td><td class="num"><span class="tag mid">ATENÇÃO</span></td><td class="num">16</td><td class="num">R$ 57,60</td><td>L&amp;M CIGARROS</td><td class="strong">hoje</td><td>—</td><td>22/09/2026</td></tr>
-<tr><td>CIGARRO PANDHORA</td><td class="num"><span class="tag mid">ATENÇÃO</span></td><td class="num">15</td><td class="num">R$ 52,50</td><td>L&amp;M CIGARROS</td><td class="strong">hoje</td><td>—</td><td>22/09/2026</td></tr>
-<tr><td>ISQUEIRO BIC GRANDE</td><td class="num"><span class="tag mid">ATENÇÃO</span></td><td class="num">6</td><td class="num">R$ 24,96</td><td>L&amp;M CIGARROS</td><td class="strong">hoje</td><td>—</td><td>22/09/2026</td></tr>
-<tr><td>TORRESMO</td><td class="num"><span class="tag low">CRÍTICO</span></td><td class="num">21</td><td class="num">R$ 33,60</td><td>Sem fornecedor no cadastro — SALGADINHOS</td><td class="strong">hoje</td><td>—</td><td>15/09/2026</td></tr>
-<tr><td>LATA DE ATUM CRUSOE 170G</td><td class="num"><span class="tag low">CRÍTICO</span></td><td class="num">6</td><td class="num">R$ 52,14</td><td>ADRIANO ROCHA DISTRIBUIDORA</td><td class="strong">amanhã</td><td>—</td><td>07/10/2026</td></tr>
-<tr><td>BATOM CHOCOLATE PRETO</td><td class="num"><span class="tag low">CRÍTICO</span></td><td class="num">6</td><td class="num">R$ 11,88</td><td>ADRIANO ROCHA DISTRIBUIDORA</td><td class="strong">amanhã</td><td>—</td><td>07/10/2026</td></tr>
-<tr><td>CIGARRO ROTHMANS AZUL</td><td class="num"><span class="tag low">CRÍTICO</span></td><td class="num">36</td><td class="num">R$ 341,28</td><td>SOUZA CRUZ LTDA</td><td class="strong">amanhã</td><td>—</td><td>05/10/2026</td></tr>
-<tr><td>MONSTER ULTRA 473ML</td><td class="num"><span class="tag low">CRÍTICO</span></td><td class="num">15</td><td class="num">R$ 124,80</td><td>SPAL INDÚSTRIA COCA-COLA</td><td class="strong">amanhã</td><td>Qui 17/09</td><td>23/09/2026</td></tr>
-<tr><td>DEL VALLE UVA &amp; LARANJA 1L</td><td class="num"><span class="tag low">CRÍTICO</span></td><td class="num">4</td><td class="num">R$ 18,88</td><td>SPAL INDÚSTRIA COCA-COLA</td><td class="strong">amanhã</td><td>Qui 17/09</td><td>23/09/2026</td></tr>
-<tr><td>TRIDENT SABOR INTENSE (X-SENSE)</td><td class="num"><span class="tag low">CRÍTICO</span></td><td class="num">6</td><td class="num">R$ 11,52</td><td>SPAL INDÚSTRIA COCA-COLA</td><td class="strong">amanhã</td><td>Qui 17/09</td><td>23/09/2026</td></tr>
-<tr><td>TRIDENT SABOR MENTA (VERDE)</td><td class="num"><span class="tag low">CRÍTICO</span></td><td class="num">6</td><td class="num">R$ 9,90</td><td>SPAL INDÚSTRIA COCA-COLA</td><td class="strong">amanhã</td><td>Qui 17/09</td><td>23/09/2026</td></tr>
-<tr><td>SCHWEPPS CITRUS 350ML</td><td class="num"><span class="tag low">CRÍTICO</span></td><td class="num">2</td><td class="num">R$ 6,24</td><td>SPAL INDÚSTRIA COCA-COLA</td><td class="strong">amanhã</td><td>Qui 17/09</td><td>23/09/2026</td></tr>
-<tr><td>SCHWEPPES CITRUS 1,5L</td><td class="num"><span class="tag mid">ATENÇÃO</span></td><td class="num">6</td><td class="num">R$ 38,76</td><td>SPAL INDÚSTRIA COCA-COLA</td><td class="strong">amanhã</td><td>Qui 17/09</td><td>23/09/2026</td></tr>
-<tr><td>MONSTER ULTRA STRAWBERRY DREAMS 473ML</td><td class="num"><span class="tag mid">ATENÇÃO</span></td><td class="num">1</td><td class="num">R$ 8,10</td><td>SPAL INDÚSTRIA COCA-COLA</td><td class="strong">amanhã</td><td>Qui 17/09</td><td>23/09/2026</td></tr>
-<tr><td>QUEIJO NOZÃO</td><td class="num"><span class="tag low">CRÍTICO</span></td><td class="num">50</td><td class="num">R$ 175,00</td><td>Sem fornecedor no cadastro — MERCEARIA</td><td class="strong">amanhã</td><td>—</td><td>16/09/2026</td></tr>
-<tr><td>CARVÃO 7KG</td><td class="num"><span class="tag low">CRÍTICO</span></td><td class="num">1</td><td class="num">R$ 20,00</td><td>Sem fornecedor no cadastro — MERCEARIA</td><td class="strong">amanhã</td><td>—</td><td>16/09/2026</td></tr>
-<tr><td>BOLINHO DE CHOCOLATE BAUDUCCO</td><td class="num"><span class="tag low">CRÍTICO</span></td><td class="num">6</td><td class="num">R$ 11,88</td><td>Sem fornecedor no cadastro — MERCEARIA</td><td class="strong">amanhã</td><td>—</td><td>16/09/2026</td></tr>
-<tr><td>PAÇOCA</td><td class="num"><span class="tag mid">ATENÇÃO</span></td><td class="num">13</td><td class="num">R$ 16,64</td><td>Sem fornecedor no cadastro — MERCEARIA</td><td class="strong">amanhã</td><td>—</td><td>16/09/2026</td></tr>
-<tr><td>REFRIGERANTE FYS 350ML SABORES DIVERSOS</td><td class="num"><span class="tag low">CRÍTICO</span></td><td class="num">2</td><td class="num">R$ 4,58</td><td>Sem fornecedor no cadastro — REFRIGERANTES</td><td class="strong">amanhã</td><td>—</td><td>16/09/2026</td></tr>
-<tr><td>CONE DE CHOCOLATE SABORES DIVERSOS</td><td class="num"><span class="tag low">CRÍTICO</span></td><td class="num">24</td><td class="num">R$ 168,00</td><td>ALINE CARLA MATIAS SILVA</td><td class="strong">Qui 17/09</td><td>—</td><td>24/09/2026</td></tr>
-<tr><td>IMPÉRIO 350ML</td><td class="num"><span class="tag low">CRÍTICO</span></td><td class="num">60</td><td class="num">R$ 181,20</td><td>BAURU DISTRIBUIDORA DE BEBIDAS LTDA</td><td class="strong">Qui 17/09</td><td>—</td><td>24/09/2026</td></tr>
-<tr><td>ENERGÉTICO DOPAMINA ALGODÃO DOCE</td><td class="num"><span class="tag low">CRÍTICO</span></td><td class="num">4</td><td class="num">R$ 24,96</td><td>BAURU DISTRIBUIDORA DE BEBIDAS LTDA</td><td class="strong">Qui 17/09</td><td>—</td><td>24/09/2026</td></tr>
-<tr><td>ERVA MATTE MENTA 500GR</td><td class="num"><span class="tag low">CRÍTICO</span></td><td class="num">1</td><td class="num">R$ 24,80</td><td>BAURU DISTRIBUIDORA DE BEBIDAS LTDA</td><td class="strong">Qui 17/09</td><td>—</td><td>24/09/2026</td></tr>
-<tr><td>CHOPP DE VINHO 600ML</td><td class="num"><span class="tag low">CRÍTICO</span></td><td class="num">2</td><td class="num">R$ 27,80</td><td>Sem fornecedor no cadastro — DESTILADOS,VINHOS &amp; OUTRAS BEBIDAS</td><td class="strong">Qui 17/09</td><td>—</td><td>17/09/2026</td></tr>
-<tr><td>VINHO TINTO SUAVE CHAPINHA 750ML</td><td class="num"><span class="tag mid">ATENÇÃO</span></td><td class="num">9</td><td class="num">R$ 115,11</td><td>Sem fornecedor no cadastro — DESTILADOS,VINHOS &amp; OUTRAS BEBIDAS</td><td class="strong">Qui 17/09</td><td>—</td><td>17/09/2026</td></tr>
-<tr><td>RED BULL LATA SABORES DIVERSOS 250ML</td><td class="num"><span class="tag low">CRÍTICO</span></td><td class="num">1</td><td class="num">R$ 9,99</td><td>Sem fornecedor no cadastro — ENERGÉTICOS</td><td class="strong">Qui 17/09</td><td>—</td><td>17/09/2026</td></tr>
-<tr><td>PINGO DE LEITE</td><td class="num"><span class="tag mid">ATENÇÃO</span></td><td class="num">12</td><td class="num">R$ 25,08</td><td>Sem fornecedor no cadastro — DOCES</td><td class="strong">Sáb 19/09</td><td>—</td><td>19/09/2026</td></tr></tbody>
+      <h3 class="panel-title">Crítico e ainda sem cor</h3>
+      <div class="panel-sub">Estoque acabando e nenhuma decisão tomada — pinte ou ignore conscientemente</div>
+      <div class="table-scroll" style="max-height:360px;"><table>
+        <thead><tr><th>Produto</th><th>Fornecedor</th><th class="num">Status</th><th class="num">Qtd sugerida</th><th class="num">Custo unit.</th><th class="num">Total</th></tr></thead>
+        <tbody><tr><td>CIGARRO CHESTERFIELD ORIGINAL LABEL</td><td>L&amp;M CIGARROS</td><td class="num"><span class="tag low">CRÍTICO</span></td><td class="num">6</td><td class="num">R$ 13,90</td><td class="num strong">R$ 83,40</td></tr>
+<tr><td>ENERGÉTICO DOPAMINA ALGODÃO DOCE</td><td>BAURU DISTRIBUIDORA DE BEBIDAS LTDA</td><td class="num"><span class="tag low">CRÍTICO</span></td><td class="num">6</td><td class="num">R$ 10,89</td><td class="num strong">R$ 65,34</td></tr>
+<tr><td>CHEETOS SABORES DIVERSOS 160G  (TAM G)</td><td>PEPSICO DO BRASIL LTDA</td><td class="num"><span class="tag low">CRÍTICO</span></td><td class="num">6</td><td class="num">R$ 7,75</td><td class="num strong">R$ 46,50</td></tr>
+<tr><td>PINGO DE LEITE</td><td>Sem fornecedor no cadastro</td><td class="num"><span class="tag low">CRÍTICO</span></td><td class="num">6</td><td class="num">R$ 1,94</td><td class="num strong">R$ 11,64</td></tr>
+<tr><td>ÓLEO DE SOJA 900ML</td><td>SPAL INDÚSTRIA COCA-COLA</td><td class="num"><span class="tag low">CRÍTICO</span></td><td class="num">1</td><td class="num">R$ 8,32</td><td class="num strong">R$ 8,32</td></tr>
+<tr><td>TRIDENT SABOR MENTA (VERDE)</td><td>SPAL INDÚSTRIA COCA-COLA</td><td class="num"><span class="tag low">CRÍTICO</span></td><td class="num">2</td><td class="num">R$ 1,99</td><td class="num strong">R$ 3,98</td></tr>
+<tr><td>DORITOS 120G (TAM G)</td><td>PEPSICO DO BRASIL LTDA</td><td class="num"><span class="tag low">CRÍTICO</span></td><td class="num">1</td><td class="num">R$ 3,82</td><td class="num strong">R$ 3,82</td></tr>
+<tr><td>DORITOS 75G (TAM M)</td><td>PEPSICO DO BRASIL LTDA</td><td class="num"><span class="tag low">CRÍTICO</span></td><td class="num">1</td><td class="num">R$ 3,81</td><td class="num strong">R$ 3,81</td></tr></tbody>
       </table></div>
     </div>
     <div class="insight">
       <h3>Pontos importantes</h3>
       <ul>
-        <li>O pico de <b>R$ 2.922,40</b> na semana 21/09–27/09 não cede: a maioria dos itens está em estado crítico, com janela de poucos dias para comprar, então os vencimentos caem quase todos na mesma faixa. Adiar exigiria aceitar ruptura de estoque ou negociar prazo maior.</li>
-        <li>A semana mais carregada do horizonte é <b>21/09–27/09</b> (R$ 2.922,40) e a mais folgada é <b>12/10–18/10</b> (R$ 0,00) — é para ela que a agenda empurra o que ainda dá para adiar.</li>
-        <li><b>1 semana(s)</b> do horizonte ficam acima da mediana histórica de R$ 2.399,62/semana — nessas vale negociar prazo maior ou dividir o pedido.</li>
-        <li>A agenda ainda deixa contas juntas em <b>15/09 (2 contas, R$ 306,60), 16/09 (2 contas, R$ 228,10), 17/09 (2 contas, R$ 152,90), 22/09 (2 contas, R$ 1.546,53), 24/09 (2 contas, R$ 398,96)</b>. A janela de compra é curta porque os itens estão críticos, então não sobram dias distintos para separar todos — aceitar um ou dois dias a mais de espera libera espaço. Fora do alcance da agenda, já chegam empilhados: <b>21/09 (3 contas), 28/09 (2 contas)</b> — são contas já lançadas ou fixas mensais, que só mudam renegociando a data com o fornecedor.</li>
-        <li>O estoque foi exportado depois da última entrega registrada, então os saldos já refletem tudo que chegou.</li>
-        <li><b>1 de 2</b> pedido(s) em aberto entram na semana pelo valor real — informado na aba PEDIDOS ou pelo boleto já lançado. O restante ainda é estimado por quantidade sugerida x custo.</li>
-        <li>Prazos combinados em uso: <b>ADRIANO ROCHA DISTRIBUIDORA (21d), L&M CIGARROS (7d), ALINE CARLA MATIAS SILVA (7d), PEPSICO DO BRASIL LTDA (7d), SPAL INDÚSTRIA COCA-COLA (7d), BAURU DISTRIBUIDORA DE BEBIDAS LTDA (7d), CASA DA CONTI LTDA (7d)</b>. Eles mandam na agenda — histórico e pedidos só entram para quem não tem prazo combinado. <b>Atenção:</b> PEPSICO DO BRASIL LTDA está combinado em 7d mas o pedido real pagou em 21d, SPAL INDÚSTRIA COCA-COLA está combinado em 7d mas o pedido real pagou em 9d.</li>
-        <li>O prazo de <b>PEPSICO DO BRASIL LTDA (21d), AMBEV S.A (16d), SPAL INDÚSTRIA COCA-COLA (9d)</b> veio de pedido real registrado, não de estimativa — quanto mais pedidos você lançar na aba PEDIDOS, mais exata fica a agenda.</li>
-        <li><b>10 itens</b> não têm fornecedor no cadastro e entram como <b>compra à vista</b>: saem do caixa no próprio dia da compra, em 6 pedido(s). Cadastrar o fornecedor passa a valer o prazo dele.</li>
+        <li>Marcado para comprar: <b>R$ 5.150,58</b> em 69 produtos. O maior pedido é <b>AMBEV S.A</b>, com R$ 2.685,26 em 7 itens.</li>
+        <li><b>8 produto(s) em estado crítico</b> ainda não foram pintados, somando R$ 226,81 se forem comprados na quantidade sugerida — são as decisões que faltam.</li>
+        <li>Nada marcado como já pedido no momento.</li>
+        <li><b>7 item(ns) verdes</b> não têm fornecedor no cadastro de estoque e aparecem agrupados como "Sem fornecedor no cadastro" — preencher esse campo organiza o total por fornecedor.</li>
+        <li>Tons lidos na planilha — vou comprar: #92D050. A classificação é por matiz, então qualquer verde ou roxo da paleta do Excel funciona.</li>
       </ul>
     </div>
   </section>
@@ -742,7 +731,7 @@ footer a{color:var(--text-muted);}
 
 <footer>
   Painel gerado automaticamente a partir das planilhas do Google Drive.<br>
-  CLIENTES - RESENHA BEER.xls (14/09/2026 às 17:48) · CONTAS A PAGAR - RESENHA BEER.xls (14/09/2026 às 17:50) · CUSTOS X VALOR DE VENDA - RESENHA BEER.xlsx (06/09/2026 às 12:24) · ESTOQUE - RESENHA BEER.xls (14/09/2026 às 17:55) · FATURAMENTO 2025 - RESENHA BEER.xlsx (03/01/2026 às 11:45) · FATURAMENTO 2026 - RESENHA BEER.xlsx (06/09/2026 às 12:38) · FATURAMENTO MENSAL - RESENHA BEER.xls (06/09/2026 às 12:05) · HORÁRIO DE PICO - RESENHA BEER.xls (14/09/2026 às 17:55) · MARGEM OPERACIONAL - RESENHA BEER.xlsx (06/09/2026 às 15:50) · MEIOS DE PAGAMENTO - RESENHA BEER.xls (14/09/2026 às 17:56) · PLANEJAMENTO DE COMPRAS - RESENHA BEER.xlsx (14/09/2026 às 17:54) · RANKING DE VENDAS POR CLIENTE - RESENHA BEER.xls (14/09/2026 às 17:57) · RECEITAS E DESPESAS - RESENHA BEER.xls (14/09/2026 às 17:58) · VENDAS POR PRODUTO - RESENHA BEER.xls (14/09/2026 às 17:52)
+  CLIENTES - RESENHA BEER.xls (14/09/2026 às 17:48) · CONTAS A PAGAR - RESENHA BEER.xls (14/09/2026 às 17:50) · CUSTOS X VALOR DE VENDA - RESENHA BEER.xlsx (06/09/2026 às 12:24) · ESTOQUE - RESENHA BEER.xls (14/09/2026 às 17:55) · FATURAMENTO 2025 - RESENHA BEER.xlsx (03/01/2026 às 11:45) · FATURAMENTO 2026 - RESENHA BEER.xlsx (06/09/2026 às 12:38) · FATURAMENTO MENSAL - RESENHA BEER.xls (06/09/2026 às 12:05) · HORÁRIO DE PICO - RESENHA BEER.xls (14/09/2026 às 17:55) · MARGEM OPERACIONAL - RESENHA BEER.xlsx (06/09/2026 às 15:50) · MEIOS DE PAGAMENTO - RESENHA BEER.xls (14/09/2026 às 17:56) · PLANEJAMENTO DE COMPRAS - RESENHA BEER.xlsx (28/09/2026 às 11:41) · RANKING DE VENDAS POR CLIENTE - RESENHA BEER.xls (14/09/2026 às 17:57) · RECEITAS E DESPESAS - RESENHA BEER.xls (14/09/2026 às 17:58) · VENDAS POR PRODUTO - RESENHA BEER.xls (14/09/2026 às 17:52)
 </footer>
 
 <script>
